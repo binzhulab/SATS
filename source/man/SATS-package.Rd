@@ -18,7 +18,7 @@
   for each targeted sequenced tumor.
 }
 \details{
-This package includes a novel algorithm, SALMON, 
+This package includes a novel algorithm, SATS, 
 to perform mutational signature analysis for targeted 
 sequenced tumors. The algorithm first applies the signeR 
 algorithm to extract profiles of de novo mutational signatures 

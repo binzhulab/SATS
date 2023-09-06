@@ -1,7 +1,7 @@
 Package: SATS
 Title: SATS (Signature Analyzer for Targeted Sequencing)
-Version: 0.0.6
-Date: 2023-04-27
+Version: 0.0.7
+Date: 2023-09-05
 Authors@R: c(person(given="DongHyuk", family="Lee", role="aut", email="dhyuklee@pusan.ac.kr"),
              person(given="Bin", family="Zhu", role="aut", email="bin.zhu@nih.gov"),
              person(given="Bill", family="Wheeler", role="cre", email="wheelerb@imsweb.com"))
@@ -10,7 +10,7 @@ Imports: stats, glmnet
 Depends: R (>= 4.1.0)
 License: GPL-2
 NeedsCompilation: yes
-Packaged: 2023-04-27 18:09:23 UTC; wheelerwi
+Packaged: 2023-09-05 20:49:26 UTC; wheelerwi
 Author: DongHyuk Lee [aut],
   Bin Zhu [aut],
   Bill Wheeler [cre]

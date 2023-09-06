@@ -44,7 +44,7 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
     data(SimData, package="SATS")
 
   \dontrun{
-    EstimateSigActivity(SimData$V, SimData$L, SimData$W_TMB)
+    EstimateSigActivity(SimData$V, SimData$L, SimData$TrueW_TMB)
   } 
 }
 \keyword{ mutational signatures } 

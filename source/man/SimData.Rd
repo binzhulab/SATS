@@ -20,12 +20,12 @@
 				matrix (TrueH below).
 	}
     \item{L} {: Panel size matrix of size 96 by 10027.}
-    \item{W_TMB} {: Tumor mutation burden based signatures size 96 by 76.}
     \item{TrueH} {: Simulated signature activity matrix of size 6 by 10027 used to generate V.}
     \item{TrueW_TMB} {: Tumor mutation burden based signatures size 96 by 6
                         for 6 SBS signatures (SBS1, SBS2/13, SBS4, SBS5, SBS40, SBS89) 
-						used to generate V.
-	}
+						used to generate V.}
+    \item{SingleTumorEx} {: A single simulated tumor (column \code{singleV}) 
+                    and its sequencing context (column \code{singleL}).}
   }
  }
 %\examples{}

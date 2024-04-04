@@ -32,7 +32,7 @@ library(SATS)
 
 ### A schematic workflow of SATS
 <img width="1268" alt="outline" src="https://github.com/PnuStat207/test_sats/assets/160466305/055c933c-675f-4c4a-99ab-687938a92005">
-
+d
 **a**. The workflow starts with summarizing somatic mutations identified through targeted sequencing, including single base substitutions (SBS), into a mutation type matrix $\mathbf{V}$. 
 In addition, SATS requires a panel context matrix $\mathbf{L}$ that specifies the number of trinucleotide contexts for individual panels. 
 SATS is based on a Poisson Nonnegative-Matrix Factorization (pNMF) model, approximating $\mathbf{V}$ by $\mathbf{L} \circ \mathbf{W} \times \mathbf{H}$ 

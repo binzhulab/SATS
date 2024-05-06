@@ -1,5 +1,6 @@
 ### Required package
-library(BSgenome.Hsapiens.UCSC.hg19)
+library(BSgenome.Hsapiens.UCSC.hg19) ## This package is for the HG19 reference genome
+## library(BSgenome.Hsapiens.UCSC.hg38) ## This package is for the HG38 reference genome
 library(tidyverse)
 
 ## Example data and results
@@ -7,7 +8,13 @@ path <- "path\to\data"
 Panel_1 <- read.table(file.path(path, "Panel_Info_1_assay.txt"), header = T, quote = "", sep="\t", stringsAsFactors = FALSE)
 Panel_2 <- read.table(file.path(path, "Panel_Info_2_assays.txt"), header = T, quote = "", sep="\t", stringsAsFactors = FALSE)
 
-
+## The following L_matrix_generation() function is to create "L" matrix
+## Please use the column names of the argument "genomic_information" identical to Chromosome, Start_Position, End_Position, SEQ_ASSAY_ID as in the above example
+## Chromosome: chromsome number
+## Start_Position: start position of targeted panel
+## End_Position: end position of targeted panel
+## SEQ_ASSAY_ID: distinguish different panels
+## The unit of the returned L matrix is the number of trinucleotides per million base pairs
 L_matrix_generation <- function(genomic_information){
   
   if(!all(c("Chromosome", "Start_Position", "End_Position", "SEQ_ASSAY_ID") %in% colnames(genomic_information))){
@@ -88,33 +95,33 @@ L_matrix_generation <- function(genomic_information){
 
 L_matrix_generation(Panel_1)
 ## Part of the results:
-        UHN-48-V1
-A[C>A]A  0.001487
-A[C>A]C  0.001120
-A[C>A]G  0.000426
-A[C>A]T  0.001155
-A[C>G]A  0.001487
-A[C>G]C  0.001120
-A[C>G]G  0.000426
-A[C>G]T  0.001155
-A[C>T]A  0.001487
-A[C>T]C  0.001120
-A[C>T]G  0.000426
+#         UHN-48-V1
+# A[C>A]A  0.001487
+# A[C>A]C  0.001120
+# A[C>A]G  0.000426
+# A[C>A]T  0.001155
+# A[C>G]A  0.001487
+# A[C>G]C  0.001120
+# A[C>G]G  0.000426
+# A[C>G]T  0.001155
+# A[C>T]A  0.001487
+# A[C>T]C  0.001120
+# A[C>T]G  0.000426
 
 L_matrix_generation(Panel_2)
 ## Part of the results:
-        GRCC-CP1 UHN-48-V1
-A[C>A]A 0.000883  0.001487
-A[C>A]C 0.000656  0.001120
-A[C>A]G 0.000278  0.000426
-A[C>A]T 0.000687  0.001155
-A[C>G]A 0.000883  0.001487
-A[C>G]C 0.000656  0.001120
-A[C>G]G 0.000278  0.000426
-A[C>G]T 0.000687  0.001155
-A[C>T]A 0.000883  0.001487
-A[C>T]C 0.000656  0.001120
-A[C>T]G 0.000278  0.000426
+#         GRCC-CP1 UHN-48-V1
+# A[C>A]A 0.000883  0.001487
+# A[C>A]C 0.000656  0.001120
+# A[C>A]G 0.000278  0.000426
+# A[C>A]T 0.000687  0.001155
+# A[C>G]A 0.000883  0.001487
+# A[C>G]C 0.000656  0.001120
+# A[C>G]G 0.000278  0.000426
+# A[C>G]T 0.000687  0.001155
+# A[C>T]A 0.000883  0.001487
+# A[C>T]C 0.000656  0.001120
+# A[C>T]G 0.000278  0.000426
 
 
 

@@ -60,7 +60,33 @@ SimData$L[1:6, 1:6]
 - Panel size matrix $\mathbf{L}$: An **R** dataframe or matrix of size $P \times N$ representing the length of trinucleotide contexts per million base pairs for the corresponding sequencing panel.
 - Reference TMB signatures $\mathbf{W}_0$: A predefined reference TMB signatures for refitting stage.
 
-#### 2. Mapping *de novo* TMB-based Signatures
+#### 2. Generating the panel size matrix $\mathbf{L}$
+- We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
+- In order to use `L_matrix_generation()`, we need information on `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
+  ```r
+  > head(Panel_1)
+    Chromosome Start_Position End_Position SEQ_ASSAY_ID
+  1          9      133738302    133738491    UHN-48-V1
+  2          9      133747476    133747664    UHN-48-V1
+  3          9      133748157    133748327    UHN-48-V1
+  4          9      133748277    133748457    UHN-48-V1
+  5          9      133750328    133750516    UHN-48-V1
+  6         14      105246429    105246600    UHN-48-V1
+  ```
+  - The column `Chromosome` contains chromsome number where `Start_Position` and `End_Position` columns are start and end positions of targeted panel.
+  - The last column `SEQ_ASSAY_ID` distinguishes different panels (if available) consisting of the resulting $\mathbf{L}$ matrix:
+  ```r
+  > L_matrix_generation(Panel_2)
+          GRCC-CP1 UHN-48-V1
+  A[C>A]A 0.000883  0.001487
+  A[C>A]C 0.000656  0.001120
+  A[C>A]G 0.000278  0.000426
+  A[C>A]T 0.000687  0.001155
+  A[C>G]A 0.000883  0.001487
+  ```
+- **warning**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example.
+ 
+#### 3. Mapping *de novo* TMB-based Signatures
 - Identify *de novo* TMB-based signatures using the signeR algorithm.
   ```r
   library(signeR)
@@ -81,7 +107,7 @@ SimData$L[1:6, 1:6]
   - `W_ref` is for the reference TMB signature profiles which will be mapped to. In this example code, we used the COSIMC reference TMB signature profiles (stored in `RefTMB$SBS_W`).
   - `MappedSig` contains mapped reference TMB signatures, e.g., COSMIC SBS1, SBS2/13, SBS4, SBS5, SBS40, and SBS89 signatures (`MappedSig$Reference`), with frequencies (`MappedSig$freq`) of coefficients greater than 0.1 out of 100 cross-validated repetitions. 
   
-#### 3. Estimating Signature Activities and Burdens
+#### 4. Estimating Signature Activities and Burdens
 - Utilize the expectation-maximization algorithm to estimate signature activities by running `EstimateSigActivity()` function.
   ```r
   W_star <- as.matrix(RefTMB$SBS_W[,SBS.list])
@@ -108,7 +134,7 @@ SimData$L[1:6, 1:6]
   SBS89      0.00    2.13       0    0.00    0.00
   ```
 
-#### 4. Signature Refitting for Single Tumors
+#### 5. Signature Refitting for Single Tumors
 - An additional benefit of the SATS algorithm is its capability to estimate signature activities and burdens, even when working with a single tumor sample, as long as the set of signatures specific to a particular cancer type is known.
 - In cases with limited sample sizes, substitute the mapped reference TMB signatures with those provided for the specific cancer type of the tumor sample.
 - `RefTMB$SBS_W` and `RefTMB$SBS_refSigs` contain the COSMIC SBS TMB signature profiles and the list of cancer specific SBS signature names, respectively.

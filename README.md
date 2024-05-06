@@ -84,7 +84,7 @@ SimData$L[1:6, 1:6]
   A[C>A]T 0.000687  0.001155
   A[C>G]A 0.000883  0.001487
   ```
-- **warning**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example.
+- **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example.
  
 #### 3. Mapping *de novo* TMB-based Signatures
 - Identify *de novo* TMB-based signatures using the signeR algorithm.

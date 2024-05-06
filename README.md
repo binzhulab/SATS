@@ -62,7 +62,7 @@ SimData$L[1:6, 1:6]
 
 #### 2. Generating the panel size matrix $\mathbf{L}$
 - We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
-- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** package `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script).
+- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html)  may be installed and loaded
 - In order to use `L_matrix_generation()`, we need information on `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
   ```r
   > head(Panel_1)
@@ -85,6 +85,7 @@ SimData$L[1:6, 1:6]
   A[C>A]T 0.000687  0.001155
   A[C>G]A 0.000883  0.001487
   ```
+  - The entries of the resulting $\mathbf{L}$ matrix denote the number of trinucleotides per million base pairs.
 - **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example (`Hugo_Symbol` is optional and not required to use `L_matrix_generation()` function).
  
 #### 3. Mapping *de novo* TMB-based Signatures

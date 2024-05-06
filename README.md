@@ -62,7 +62,7 @@ SimData$L[1:6, 1:6]
 
 #### 2. Generating the panel size matrix $\mathbf{L}$
 - We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
-- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html)  may be installed and loaded
+- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html) may be installed and loaded
 - In order to use `L_matrix_generation()`, we need information on `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
   ```r
   > head(Panel_1)

@@ -92,7 +92,6 @@ L_matrix_generation <- function(genomic_information){
 }
 
 
-
 L_matrix_generation(Panel_1)
 ## Part of the results:
 #         UHN-48-V1

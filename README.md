@@ -62,16 +62,17 @@ SimData$L[1:6, 1:6]
 
 #### 2. Generating the panel size matrix $\mathbf{L}$
 - We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
+- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** package `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script).
 - In order to use `L_matrix_generation()`, we need information on `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
   ```r
   > head(Panel_1)
-    Chromosome Start_Position End_Position SEQ_ASSAY_ID
-  1          9      133738302    133738491    UHN-48-V1
-  2          9      133747476    133747664    UHN-48-V1
-  3          9      133748157    133748327    UHN-48-V1
-  4          9      133748277    133748457    UHN-48-V1
-  5          9      133750328    133750516    UHN-48-V1
-  6         14      105246429    105246600    UHN-48-V1
+    Chromosome Start_Position End_Position SEQ_ASSAY_ID Hugo_Symbol
+  1          9      133738302    133738491    UHN-48-V1        ABL1
+  2          9      133747476    133747664    UHN-48-V1        ABL1
+  3          9      133748157    133748327    UHN-48-V1        ABL1
+  4          9      133748277    133748457    UHN-48-V1        ABL1
+  5          9      133750328    133750516    UHN-48-V1        ABL1
+  6         14      105246429    105246600    UHN-48-V1        AKT1
   ```
   - The column `Chromosome` contains chromsome number where `Start_Position` and `End_Position` columns are start and end positions of targeted panel.
   - The last column `SEQ_ASSAY_ID` distinguishes different panels (if available) consisting of the resulting $\mathbf{L}$ matrix:
@@ -84,7 +85,7 @@ SimData$L[1:6, 1:6]
   A[C>A]T 0.000687  0.001155
   A[C>G]A 0.000883  0.001487
   ```
-- **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example.
+- **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example (`Hugo_Symbol` is optional and not required to use `L_matrix_generation()` function).
  
 #### 3. Mapping *de novo* TMB-based Signatures
 - Identify *de novo* TMB-based signatures using the signeR algorithm.

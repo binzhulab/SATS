@@ -155,5 +155,5 @@ SimData$L[1:6, 1:6]
   - Similar to the step 3, functions `EstimateSigActivity()` and `CalculateSigExpectancy()` work to estimate signature activities and signature burdens.
 
 ### Conclusion
-SATS provides a comprehensive approach for analyzing mutational signatures in targeted sequenced tumors, addressing the limitations of existing tools and providing detailed steps for analysis in various scenarios.
+SATS provides a comprehensive approach for analyzing mutational signatures in targeted sequenced tumors, addressing the limitations of existing tools and providing detailed steps for analysis in various scenarios. This work is under the license of CC BY-NC 4.0. 
 

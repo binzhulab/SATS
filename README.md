@@ -63,31 +63,39 @@ SimData$L[1:6, 1:6]
 #### 2. Generating the panel size matrix $\mathbf{L}$
 - We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
 - Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html) may be installed and loaded.
-- In order to use `L_matrix_generation()`, we need information on `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
+- It can be called `L_matrix_generation(genomic_information, Types)` where `genomic_information` contains `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
   ```r
-  > head(Panel_1)
+  > Panel_1
     Chromosome Start_Position End_Position SEQ_ASSAY_ID Hugo_Symbol
   1          9      133738302    133738491    UHN-48-V1        ABL1
   2          9      133747476    133747664    UHN-48-V1        ABL1
   3          9      133748157    133748327    UHN-48-V1        ABL1
-  4          9      133748277    133748457    UHN-48-V1        ABL1
-  5          9      133750328    133750516    UHN-48-V1        ABL1
-  6         14      105246429    105246600    UHN-48-V1        AKT1
+  ...
   ```
   - The column `Chromosome` contains chromsome number where `Start_Position` and `End_Position` columns are start and end positions of targeted panel.
-  - The last column `SEQ_ASSAY_ID` distinguishes different panels (if available) consisting of the resulting $\mathbf{L}$ matrix:
-  ```r
-  > L_matrix_generation(Panel_2)
-          GRCC-CP1 UHN-48-V1
-  A[C>A]A 0.000883  0.001487
-  A[C>A]C 0.000656  0.001120
-  A[C>A]G 0.000278  0.000426
-  A[C>A]T 0.000687  0.001155
-  A[C>G]A 0.000883  0.001487
-  ```
-  - The entries of the resulting $\mathbf{L}$ matrix denote the number of trinucleotides per million base pairs.
+  - The last column `SEQ_ASSAY_ID` distinguishes different panels consisting of the resulting $\mathbf{L}$ matrix (column names in the result).
 - **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example (`Hugo_Symbol` is optional and not required to use `L_matrix_generation()` function).
- 
+-  The second arguement on `L_matrix_generation()` specifies mutation type order as either one of `"COSMIC"` or `"signeR"` where
+    - `"COSMIC"` corresponds to the order from the COSMIC database v3.2 and
+    - `"signeR"` corresponds to the order from the `signeR` package
+    ```r
+    > L_matrix_generation(Panel_1) #not working
+    > L_matrix_generation(Panel_2, Types = "COSMIC")
+            GRCC-CP1 UHN-48-V1
+    A[C>A]A 0.000883  0.001487
+    A[C>A]C 0.000656  0.001120
+    A[C>A]G 0.000278  0.000426
+    ...
+    > L_matrix_generation(Panel_2, Types = "signeR")
+            GRCC-CP1 UHN-48-V1
+    C>A:ACA 0.000883  0.001487
+    C>A:ACC 0.000656  0.001120
+    C>A:ACG 0.000278  0.000426
+    ...
+    ```
+    - The entries of the resulting $\mathbf{L}$ matrix denote the number of trinucleotides per million base pairs.
+- **Note**: The extracted $\mathbf{L}$ matrix is used as the opportunity matrix for `signeR()` function and its mutation type order should be the same as input matrix (Mutation catalog matrix $\mathbf{V}$; see Section 3). Thus we highly recommend to confirm that both $\mathbf{V}$ and $\mathbf{L}$ matrices have the same mutation type order corresponding to one of COSMIC database v3.2 or `signeR` package (both have the same order but have different expression) to conduct the consistent analysis.
+
 #### 3. Mapping *de novo* TMB-based Signatures
 - Identify *de novo* TMB-based signatures using the signeR algorithm.
   ```r

@@ -1,4 +1,4 @@
-CalculateSigExpectancy <- function(L, W, H) {
+CalculateSignatureBurdens <- function(L, W, H) {
 
   check_L_W_H(L, W, H) 
 

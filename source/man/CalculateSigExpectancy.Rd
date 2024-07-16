@@ -1,14 +1,14 @@
 
-\name{CalculateSigExpectancy}
-\alias{CalculateSigExpectancy}
-\title{CalculateSigExpectancy}
+\name{CalculateSignatureBurdens}
+\alias{CalculateSignatureBurdens}
+\title{CalculateSignatureBurdens}
 \description{
    Estimation of the expected number of mutations attributed 
    by TMB-based catalog signatures (signature expectancy) given 
    the panel size matrix, the catalog signature profile matrix 
    and the signature activities matrix.
 }
-\usage{ CalculateSigExpectancy(L, W, H)
+\usage{ CalculateSignatureBurdens(L, W, H)
 }
 \arguments{
     \item{L}{Panel size matrix or data frame with samples in columns}
@@ -35,7 +35,7 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 \examples{
     data(SimData, package="SATS")
 
-    CalculateSigExpectancy(SimData$L, SimData$TrueW_TMB, SimData$TrueH)
+    CalculateSignatureBurdens(SimData$L, SimData$TrueW_TMB, SimData$TrueH)
 }
 \keyword{ mutational signatures } 
 \seealso{ \code{\link{EstimateSigActivity}} }

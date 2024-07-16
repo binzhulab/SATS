@@ -34,7 +34,7 @@ Finally, the expected number of mutations attributed by a signature,
 namely signature expectancy, is calculated for each targeted sequenced tumor.
 
 The main functions in this package are \code{\link{EstimateSigActivity}}, 
-\code{\link{CalculateSigExpectancy}}, and \code{\link{MappingSignature}}.
+\code{\link{CalculateSignatureBurdens}}, and \code{\link{MappingSignature}}.
 }
 \references{
 Lee, D., Hua, M., Wang, D., Song, L., Yu, K., Yang, X., Shi, J., Landi, M., 

@@ -48,4 +48,4 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
   } 
 }
 \keyword{ mutational signatures } 
-\seealso{ \code{\link{CalculateSigExpectancy}} }
+\seealso{ \code{\link{CalculateSignatureBurdens}} }

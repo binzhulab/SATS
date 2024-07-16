@@ -40,4 +40,4 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 }
 %\examples{}
 %\keyword{ mutational signatures } 
-%\seealso{ \code{\link{EstimateSigActivity}} }
+%\seealso{ \code{\link{} }

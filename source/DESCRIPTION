@@ -1,0 +1,17 @@
+Package: SATS
+Title: SATS (Signature Analyzer for Targeted Sequencing)
+Version: 0.0.7
+Date: 2023-09-05
+Authors@R: c(person(given="DongHyuk", family="Lee", role="aut", email="dhyuklee@pusan.ac.kr"),
+             person(given="Bin", family="Zhu", role="aut", email="bin.zhu@nih.gov"),
+             person(given="Bill", family="Wheeler", role="cre", email="wheelerb@imsweb.com"))
+Description: This package is created to perform mutational signature analysis for targeted sequenced tumors. Unlike the canonical analysis of mutational signatures, SATS factorizes the mutation counts matrix into a panel context matrix (measuring the size of the targeted sequenced genome for each tumor in the unit of million base pairs (Mb)), a signature profile matrix, and a signature activity matrix. SATS also calculates the expected number of mutations attributed by a signature, namely signature expectancy, for each targeted sequenced tumor.
+Imports: stats, glmnet
+Depends: R (>= 4.1.0)
+License: GPL-2
+NeedsCompilation: yes
+Packaged: 2023-09-05 20:49:26 UTC; wheelerwi
+Author: DongHyuk Lee [aut],
+  Bin Zhu [aut],
+  Bill Wheeler [cre]
+Maintainer: Bill Wheeler <wheelerb@imsweb.com>

@@ -1,0 +1,5 @@
+useDynLib(SATS, .registration = TRUE)
+importFrom("utils", "data")
+importFrom("stats", "runif", "coef", "filter")
+importFrom("glmnet", "cv.glmnet")
+export(EstimateSigActivity, CalculateSigExpectancy, MappingSignature)

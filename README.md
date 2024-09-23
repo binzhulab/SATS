@@ -61,9 +61,10 @@ SimData$L[1:6, 1:6]
 - Reference TMB signatures $\mathbf{W}_0$: A predefined reference TMB signatures for refitting stage.
 
 #### 2. Generating the panel size matrix $\mathbf{L}$
-- We have added an **R** script (*L_matrix_Generation.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `L_matrix_generation()` function and two example datasets (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels).
-- Note that HG19 reference genome is used to generate $\mathbf{L}$ matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html) may be installed and loaded.
-- It can be called `L_matrix_generation(genomic_information, Types)` where `genomic_information` contains `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
+- We have added an **R** script (*L_matrix_Generation_V2.R*) in [here](https://github.com/binzhulab/SATS/tree/main/Generating_L) containing `Panel_Context_generation()` and `L_matrix_generation()` functions, and panel context informations (*Panel_Info_1_assay.txt* for a single panel information and *Panel_Info_2_assays.txt* for multiple panels) and patient information (*Patient_Info.txt* for the patient IDs associated with each SEQ_ASSAY_ID).
+- Since the $\mathbf{L}$ matrix contains the panel context associated with each patient, we first construct referecne panel context using the `Panel_Context_generation()` function. The $\mathbf{L}$ matrix is then generated from the reference panel context by matching SEQ_ASSAY_ID with Patient_ID using the `L_matrix_generation()` function.
+- Note also that HG19 reference genome is used to generate panel context matrix (An **R** [package](https://www.bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html) `BSgenome.Hsapiens.UCSC.hg19` will be loaded in *L_matrix_Generation_V2.R* script). For the HG38 reference genome, `BSgenome.Hsapiens.UCSC.hg38` [package](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg38.html) may be installed and loaded.
+- It can be called `Panel_Context_generation(genomic_information, Types)` where `genomic_information` contains `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as belows:
   ```r
   > Panel_1
     Chromosome Start_Position End_Position SEQ_ASSAY_ID Hugo_Symbol
@@ -74,19 +75,19 @@ SimData$L[1:6, 1:6]
   ```
   - The column `Chromosome` contains chromsome number where `Start_Position` and `End_Position` columns are start and end positions of targeted panel.
   - The last column `SEQ_ASSAY_ID` distinguishes different panels consisting of the resulting $\mathbf{L}$ matrix (column names in the result).
-- **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example (`Hugo_Symbol` is optional and not required to use `L_matrix_generation()` function).
--  The second arguement on `L_matrix_generation()` specifies mutation type order as either one of `"COSMIC"` or `"signeR"` where
+- **Note**: Please use the column names identical to `Chromosome`, `Start_Position`, `End_Position`, `SEQ_ASSAY_ID` as in the above example (`Hugo_Symbol` is optional and not required to use `Panel_Context_generation()` function).
+-  The second arguement on `Panel_Context_generation()` specifies mutation type order as either one of `"COSMIC"` or `"signeR"` where
     - `"COSMIC"` corresponds to the order from the COSMIC database v3.2 and
     - `"signeR"` corresponds to the order from the `signeR` package
     ```r
-    > L_matrix_generation(Panel_1) #not working
-    > L_matrix_generation(Panel_2, Types = "COSMIC")
+    > Panel_Context_generation(Panel_1) #not working
+    > Panel_Context_generation(Panel_2, Types = "COSMIC")
             GRCC-CP1 UHN-48-V1
     A[C>A]A 0.000883  0.001487
     A[C>A]C 0.000656  0.001120
     A[C>A]G 0.000278  0.000426
     ...
-    > L_matrix_generation(Panel_2, Types = "signeR")
+    > Panel_Context_generation(Panel_2, Types = "signeR")
             GRCC-CP1 UHN-48-V1
     C>A:ACA 0.000883  0.001487
     C>A:ACC 0.000656  0.001120

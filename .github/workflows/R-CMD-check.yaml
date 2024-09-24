@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-      - v3.0-dev
+      - master
   pull_request:
     branches:
-      - v3.0-dev
+      - master
 
 name: R-CMD-check
 
@@ -68,7 +68,6 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
-          remotes::install_github("ncats/RaMP-DB@sqlite")
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 

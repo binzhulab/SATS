@@ -1,1 +1,1 @@
-install_github("ncats/RAMP-DB")
+install_github("binzhulab/SATS")

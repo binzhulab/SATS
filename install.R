@@ -1,1 +1,1 @@
-install_github("binzhulab/SATS")
+install_github("binzhulab/SATS/source")

@@ -50,6 +50,26 @@ jobs:
           #writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
 
+      - name: Install Bioconductor packages
+        if: matrix.config.r == 'release'
+        run: |
+          remotes::install_cran("BiocManager")
+          BiocManager::install("GenomicRanges", version = remotes::bioc_version())
+          BiocManager::install("IRanges", version = remotes::bioc_version())
+          BiocManager::install("Biostrings", version = remotes::bioc_version())
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", version = remotes::bioc_version())
+        shell: Rscript {0}
+
+        - name: Install Bioconductor devel packages
+        if: matrix.config.r == 'devel'
+        run: |
+          remotes::install_dev("BiocManager")
+          BiocManager::install("GenomicRanges", version = "devel")
+          BiocManager::install("IRanges", version = "devel")
+          BiocManager::install("Biostrings", version = "devel")
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", version = "devel")
+        shell: Rscript {0}
+
       - name: Cache R packages
         if: runner.os != 'Windows'
         uses: actions/cache@v2

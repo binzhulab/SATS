@@ -49,7 +49,7 @@ jobs:
           #saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
           #writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
-
+        
       - name: Install Bioconductor packages
         if: matrix.config.r == 'release'
         run: |
@@ -60,7 +60,7 @@ jobs:
           BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", version = remotes::bioc_version())
         shell: Rscript {0}
 
-        - name: Install Bioconductor devel packages
+      - name: Install Bioconductor devel packages
         if: matrix.config.r == 'devel'
         run: |
           remotes::install_dev("BiocManager")

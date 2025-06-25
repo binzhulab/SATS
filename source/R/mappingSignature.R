@@ -8,6 +8,7 @@ MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.re
   # W_hat: de novo signatures from signeR 
   # W_ref: TMB-based catalog signatures (SimData$W_TMB)
   
+  # Check for errors with inputs
   check_mat_df(W_hat, "W_hat")
   if (!is.null(W_ref)) check_mat_df(W_ref, "W_ref")
   check_number(niter, "niter", min=1)
@@ -18,7 +19,8 @@ MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.re
   if (is.null(W_ref)) W_ref <- get_W_ref()
 
   ## Value
-  # selected TMB-based catalog signatures with coefficient I^2 greater than 0.1 in more than 80 repeats
+  # selected TMB-based catalog signatures with coefficient I^2 greater than cutoff.I2 
+  #   in more than min.repeats repeats
   
   signeR_W_norm <- apply(as.matrix(W_hat), 2, function(x) x/sum(x))
   r <- ncol(signeR_W_norm)
@@ -30,7 +32,7 @@ MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.re
   
   reg.sig.all <- NULL
   sig_found   <- NULL
-  singeR <- 
+  singeR      <- NULL
   for(rep in 1:niter){
     cvfit <- cv.glmnet(X, y, lower.limits = 0, intercept = FALSE) 
     out   <- coef(cvfit, s = "lambda.min")
@@ -76,6 +78,8 @@ filt1 <- function(reg, cutoff.I2) {
 }
 
 get_W_ref <- function() {
+
+  # Function to load simulated data from the extdata folder
 
   SimData_W_TMB <- NULL
   dir <- system.file("extdata", package="SATS", mustWork=TRUE)

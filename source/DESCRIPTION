@@ -1,18 +1,18 @@
 Package: SATS
 Title: Signature Analyzer for Targeted Sequencing (SATS)
-Version: 1.0.2
-Date: 2025-06-25
+Version: 1.0.4
+Date: 2025-07-01
 Authors@R: c(person(given="DongHyuk", family="Lee", role="aut", email="dhyuklee@pusan.ac.kr"),
              person(given="Bin", family="Zhu", role="aut", email="bin.zhu@nih.gov"),
              person(given="Bill", family="Wheeler", role="cre", email="wheelerb@imsweb.com"))
-Description: Performs mutational signature analysis for targeted sequenced tumors. Unlike the canonical analysis of mutational signatures, SATS factorizes the mutation counts matrix into a panel context matrix (measuring the size of the targeted sequenced genome for each tumor in the unit of million base pairs (Mb)), a signature profile matrix, and a signature activity matrix. SATS also calculates the expected number of mutations attributed by a signature, namely signature expectancy, for each targeted sequenced tumor.
+Description: Performs mutational signature analysis for targeted sequenced tumors. Unlike the canonical analysis of mutational signatures, SATS factorizes the mutation counts matrix into a panel context matrix (measuring the size of the targeted sequenced genome for each tumor in the unit of million base pairs (Mb)), a signature profile matrix, and a signature activity matrix. SATS also calculates the expected number of mutations attributed by a signature, namely signature expectancy, for each targeted sequenced tumor. For more details see Lee et al. (2024) <doi:10.1101/2023.05.18.23290188>.
 Imports: stats, glmnet, GenomicRanges, IRanges, Biostrings, dplyr,
         BSgenome.Hsapiens.UCSC.hg19
 Depends: R (>= 4.1.0)
 Suggests: testthat
 License: GPL-2
 NeedsCompilation: yes
-Packaged: 2025-06-25 15:39:42 UTC; wheelerwi
+Packaged: 2025-07-01 12:53:45 UTC; wheelerwi
 Author: DongHyuk Lee [aut],
   Bin Zhu [aut],
   Bill Wheeler [cre]

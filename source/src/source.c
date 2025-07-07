@@ -135,9 +135,7 @@ double initVal;
 } 
 */
 
-static double ** dMat_alloc(nr, nc, initFlag, initVal)
-int nr, nc, initFlag;
-double initVal;
+static double ** dMat_alloc(int nr, int nc, int initFlag, double initVal)
 {
   int i, j;
   double **ret, *p;
@@ -157,9 +155,7 @@ double initVal;
 } 
 
 
-static double ** dMat_alloc_fromVec(nr, nc, vec)
-int nr, nc;
-double *vec;
+static double ** dMat_alloc_fromVec(int nr, int nc, double *vec)
 {
   int i;
   double **ret;
@@ -176,9 +172,7 @@ double *vec;
 
 } 
 
-static void dMat_free(x, nr)
-double **x;
-int nr;
+static void dMat_free(double **x, int nr)
 {
   int i;
   
@@ -234,9 +228,7 @@ int n;
 }
 */
 
-static void matrixMult(m1, m1_nr, m1_nc, m2, m2_nc, ret)
-double **m1, **m2, **ret;
-int m1_nr, m1_nc, m2_nc;
+static void matrixMult(double **m1, int m1_nr, int m1_nc, double **m2, int m2_nc, double **ret)
 {
   int i, j, k;
   double sum;
@@ -253,9 +245,7 @@ int m1_nr, m1_nc, m2_nc;
 
 }
 
-static void putMatIntoVecbyRow(mat, nr, nc, ret)
-double **mat, *ret;
-int nr, nc;
+static void putMatIntoVecbyRow(double **mat, int nr, int nc, double *ret)
 {
   int i, j, k;
 
@@ -266,9 +256,7 @@ int nr, nc;
 
 }
 
-static void init_H0(nr, nc, lower, upper, ret)
-double lower, upper, **ret;
-int nr, nc;
+static void init_H0(int nr, int nc, double lower, double upper, double **ret)
 {
   int i, j;
 
@@ -278,9 +266,7 @@ int nr, nc;
 
 }
 
-static void update_H(H, tmat, tWL, H_nr, H_nc)
-double **H, **tmat, **tWL;
-int H_nr, H_nc;
+static void update_H(double **H, double **tmat, double **tWL, int H_nr, int H_nc)
 {
   /* matrix H gets updated 
      H1 <- H0*( trans.W0 %*% (V/(WH.hat)))/(trans.W0 %*% L)
@@ -297,9 +283,7 @@ int H_nr, H_nc;
   
 }
 
-static void transposeMat(mat, mat_nr, mat_nc, ret)
-double **mat, **ret;
-int mat_nr, mat_nc;
+static void transposeMat(double **mat, int mat_nr, int mat_nc, double **ret)
 {
   int i, j;
 
@@ -311,9 +295,7 @@ int mat_nr, mat_nc;
 
 }
 
-static void divideMats(mat1, mat2, nr, nc, ret)
-double **mat1, **mat2, **ret;
-int nr, nc;
+static void divideMats(double **mat1, double **mat2, int nr, int nc, double **ret)
 {
   int i, j;
 
@@ -325,9 +307,8 @@ int nr, nc;
 
 }
 
-static double calc_loglike(V, WH, L, nr, nc)
-double **V, **WH, **L; /* all have dim nr by nc (p X n) */
-int nr, nc;
+static double calc_loglike(double **V, double **WH, double **L, int nr, int nc)
+/* V, WH, and L all have dim nr by nc (p X n) */
 {
   /* V.hat   <- WH.hat * L
      Lik_mat <- V*log(V.hat)-V.hat 
@@ -348,8 +329,7 @@ int nr, nc;
   return(sum);
 }
 
-static int salmon_h_1(str)
-SALSTR *str;
+static int salmon_h_1(SALSTR *str)
 {
   int n, k, p, iter, conv, prt, DEBUG=str->DEBUG;
   double ll0, ll1, **W, **H, **WH, **V, **L, **tW, **tWL, **tmat_p_n, **tmat_k_n, eps;
@@ -418,10 +398,9 @@ SALSTR *str;
   return(conv);
 }
 
-static int salmon_h(str)
-SALSTR *str;
+static int salmon_h(SALSTR *str)
 {
-  int i, rc, k, n, conv, DEBUG=str->DEBUG;
+  int i, rc, k, n, conv=0, DEBUG=str->DEBUG;
   double maxlike, ll, **H, *ret_H;
 
   if (DEBUG) Rprintf("Begin salmon_h\n");
@@ -447,10 +426,7 @@ SALSTR *str;
   return(conv);
 }
 
-static void SALSTR_init(str, iargs, dargs, V, L, W, ret_H) 
-SALSTR *str;
-int *iargs;
-double *dargs, *V, *L, *W, *ret_H;
+static void SALSTR_init(SALSTR *str, int *iargs, double *dargs, double *V, double *L, double *W, double *ret_H) 
 {
   int n, p, k;
 
@@ -487,10 +463,7 @@ double *dargs, *V, *L, *W, *ret_H;
   if (str->DEBUG) Rprintf("End SALSTR_init\n");
 }
 
-static void SALSTR_free(str, iargs, dargs, V, L, W, ret_H) 
-SALSTR *str;
-int *iargs;
-double *dargs, *V, *L, *W, *ret_H;
+static void SALSTR_free(SALSTR *str) 
 {
   int p=str->p, k=str->k, DEBUG=str->DEBUG;
 
@@ -520,9 +493,8 @@ double *dargs, *V, *L, *W, *ret_H;
 
 }
 
-void C_call_salmon(iargs, dargs, V, L, W, ret_H, ret_ll, ret_conv)
-double *dargs, *V, *L, *W, *ret_H, *ret_ll;
-int *iargs, *ret_conv;
+void C_call_salmon(int *iargs, double *dargs, double *V, double *L, double *W, double *ret_H, 
+                   double *ret_ll, int *ret_conv)
 {
   SALSTR str;
 

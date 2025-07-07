@@ -43,7 +43,7 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 \examples{
     data(SimData, package="SATS")
 
-  \dontrun{
+  \donttest{
     EstimateSigActivity(SimData$V, SimData$L, SimData$TrueW_TMB)
   } 
 }

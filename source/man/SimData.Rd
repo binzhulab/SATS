@@ -26,7 +26,10 @@
 						used to generate V.
     \item{SingleTumorEx} : A single simulated tumor (column \code{singleV}) 
                     and its sequencing context (column \code{singleL}).
-    \item{PanelEx}: An example data frame of panel information
+    \item{PanelEx}: An example sequencing panel information with Chromosome, Start_Position,
+                    End_Position, SEQ_ASSAY_ID.
+    \item{PatientInfo}: An example patient data containing patients ID associated with
+                        SEQ_ASSAY_ID.
   }
  }
 %\examples{}

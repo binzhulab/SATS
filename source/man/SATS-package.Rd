@@ -14,7 +14,7 @@
   for each tumor in the unit of million base pairs (Mb)), 
   a signature profile matrix, and a signature activity matrix. 
   SATS also calculates the expected number of mutations attributed 
-  by a signature, namely signature expectancy, 
+  by a signature, namely signature burden, 
   for each targeted sequenced tumor.
 }
 \details{
@@ -31,9 +31,10 @@ Then, given the panel sizes and profiles of mapped TMB catalog signatures,
 signature activities are estimated for all samples simultaneously 
 through the Expectation-Maximization (EM) algorithm. 
 Finally, the expected number of mutations attributed by a signature, 
-namely signature expectancy, is calculated for each targeted sequenced tumor.
+namely signature burden, is calculated for each targeted sequenced tumor.
 
-The main functions in this package are \code{\link{EstimateSigActivity}}, 
+The main functions in this package are \code{\link{GenerateLMatrix}}, 
+\code{\link{EstimateSigActivity}},\cr 
 \code{\link{CalculateSignatureBurdens}}, and \code{\link{MappingSignature}}.
 }
 \references{

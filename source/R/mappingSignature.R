@@ -1,5 +1,5 @@
 
-MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.repeats=80){
+MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.repeats=80, COSMICv="v3.4"){
   ## Description
   # This function finds a subset of TMB-based catalog SBS signatures whose linear combination approximate 
   # {\it de novo} SBS signatures detected by signeR
@@ -14,9 +14,10 @@ MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.re
   check_number(niter, "niter", min=1)
   check_number(cutoff.I2, "cutoff.I2", pos=TRUE)
   check_number(min.repeats, "min.repeats", min=1, max=niter)
+  check_COSMICv(COSMICv)
   SimData <- NULL
 
-  if (is.null(W_ref)) W_ref <- get_W_ref()
+  if (is.null(W_ref)) W_ref <- get_W_ref(COSMICv)
 
   ## Value
   # selected TMB-based catalog signatures with coefficient I^2 greater than cutoff.I2 
@@ -77,15 +78,30 @@ filt1 <- function(reg, cutoff.I2) {
 
 }
 
-get_W_ref <- function() {
+get_W_ref <- function(COSMICv) {
 
-  # Function to load simulated data from the extdata folder
+  # Function to load data
 
-  SimData_W_TMB <- NULL
-  dir <- system.file("extdata", package="SATS", mustWork=TRUE)
-  f   <- file.path(dir, "SimData_W_TMB.rda")
-  tmp <- load(f)
-  if (is.null(SimData_W_TMB)) stop("ERROR loading SimData$W_TMB")
-  SimData_W_TMB
+  #"SBS_refSigs"  "DBS_refSigs"  "TMB_DBS_v3.2" "TMB_SBS_v3.2" "TMB_DBS_v3.4"
+  # "TMB_SBS_v3.4"
+  
+  RefTMB       <- NULL
+  dir          <- system.file("data", package="SATS", mustWork=TRUE)
+  f            <- file.path(dir, "RefTMB.rda")
+  tmp          <- load(f)
+  SBS_refSigs  <- NULL 
+  DBS_refSigs  <- NULL 
+  TMB_DBS_v3.2 <- NULL
+  TMB_DBS_v3.4 <- NULL
 
+  if (COSMICv == "v3.2") {
+    nm <- "TMB_SBS_v3.2"
+  } else {
+    nm <- "TMB_SBS_v3.4"
+  }
+  ret <- RefTMB[[nm, exact=TRUE]]
+  if (is.null(ret)) stop("ERROR loading data")
+    
+  
+  ret
 }

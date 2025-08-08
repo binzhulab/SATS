@@ -24,15 +24,17 @@ check_L_W_V <- function(L, W, V) {
 }
 
 
-check_mat_df <- function(x, nm) {
+check_mat_df <- function(x, nm, check.finite=1) {
 
   if (!is.matrix(x) && !is.data.frame(x)) {
     stop(paste0("ERROR: ", nm, " must be a matrix or data frame"))
   }
   if (!nrow(x)) stop(paste0("ERROR: ", nm, " has no rows"))
   if (!ncol(x)) stop(paste0("ERROR: ", nm, " has no columns"))
-  if (any(!is.finite(as.matrix(x)))) {
-    stop(paste0("ERROR: ", nm, " contains non-finite values"))
+  if (check.finite) {
+    if (any(!is.finite(as.matrix(x)))) {
+      stop(paste0("ERROR: ", nm, " contains non-finite values"))
+    }
   }
 
   NULL
@@ -74,6 +76,41 @@ check_Types <- function(x) {
   NULL
 }
 
+check_Class <- function(x) {
+
+  valid <- c("SBS", "DBS")
+  err   <- "ERROR: Class must be 'SBS' or 'DBS'"
+
+  if(length(x) != 1) stop(err)
+  if (!isString(x)) stop(err)
+  if (!(x %in% valid)) stop(err)  
+    
+  NULL
+}
+
+
+check_COSMICv <- function(x) {
+
+  valid <- c("v3.2", "v3.4")
+  err   <- "ERROR: COSMICv must be 'v3.2' or 'v3.4'"
+
+  if (!isString(x)) stop(err)
+  if (!(x %in% valid)) stop(err)  
+    
+  NULL
+}
+
+check_ref.genome <- function(x) {
+
+  valid <- c("hg19", "hg38")
+  err   <- "ERROR: ref.genome must be 'hg19' or 'hg38'"
+
+  if (!isString(x)) stop(err)
+  if (!(x %in% valid)) stop(err)  
+    
+  NULL
+}
+
 check_genomic_info <- function(x) {
 
   if (!is.data.frame(x)) {
@@ -95,4 +132,26 @@ check_genomic_info <- function(x) {
   }
 
   NULL
+}
+
+check_Panel_context <- function(x) {
+
+  if (!is.data.frame(x)) stop("ERROR: Panel_context must be a data frame")
+  check_mat_df(x, "Panel_context", check.finite=0)
+
+  NULL
+}
+
+check_Patient_Info <- function(x) {
+
+  if (!is.data.frame(x)) stop("ERROR: Patient_Info must be a data frame")
+  check_mat_df(x, "Patient_Info", check.finite=0)
+  cx <- colnames(x)
+  vv <- c("PATIENT_ID", "SEQ_ASSAY_ID")
+  for (v in vv) {
+    if (!(v %in% cx)) {
+      stop(paste0("ERROR: Patient_Info must contain the column '", v, "'"))
+    }
+  }
+  NULL	
 }

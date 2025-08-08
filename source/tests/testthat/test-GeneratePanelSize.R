@@ -11,8 +11,8 @@ load(rdafile)
 data(SimData, package="SATS")
 
 # Call the function to test
-obj1 <- SATS::GeneratePanelSize(genomic_information = SimData$PanelEx, Types = "COSMIC")
-obj2 <- SATS::GeneratePanelSize(genomic_information = SimData$PanelEx, Types = "signeR")
+obj1 <- SATS::GeneratePanelSize(genomic_information=SimData$PanelEx, Class="SBS", SBS_order="COSMIC")
+obj2 <- SATS::GeneratePanelSize(genomic_information=SimData$PanelEx, Class="SBS", SBS_order="signeR")
 
 # Compare result to the baseline. 
 test_that("GeneratePanelSize",

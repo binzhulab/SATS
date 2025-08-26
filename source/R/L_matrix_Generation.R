@@ -20,6 +20,17 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
 
     SEQ_ASSAY_ID <- NULL # To remove warning when compiling
 
+    DBS_order <- c("ACCA", "ACCG", "ACCT", "ACGA", "ACGG", "ACGT", "ACTA", "ACTG", "ACTT", 
+                   "ATCA", "ATCC", "ATCG", "ATGA", "ATGC", "ATTA", 
+                   "CCAA", "CCAG", "CCAT", "CCGA", "CCGG", "CCGT", "CCTA", "CCTG", "CCTT", 
+                   "CGAT", "CGGC", "CGGT", "CGTA", "CGTC", "CGTT", 
+                   "CTAA", "CTAC", "CTAG", "CTGA", "CTGC", "CTGG", "CTTA", "CTTC", "CTTG", 
+                   "GCAA", "GCAG", "GCAT", "GCCA", "GCCG", "GCTA", 
+                   "TAAT", "TACG", "TACT", "TAGC", "TAGG", "TAGT", 
+                   "TCAA", "TCAG", "TCAT", "TCCA", "TCCG", "TCCT", "TCGA", "TCGG", "TCGT", 
+                   "TGAA", "TGAC", "TGAT", "TGCA", "TGCC", "TGCT", "TGGA", "TGGC", "TGGT", 
+                   "TTAA", "TTAC", "TTAG", "TTCA", "TTCC", "TTCG", "TTGA", "TTGC", "TTGG")
+
     Seq_assay_GRanges <- GRanges(seqnames=paste0("chr",genomic_information$Chromosome),
                                  IRanges(start = genomic_information$Start_Position, end=genomic_information$End_Position), 
                                  strand = "+")
@@ -60,9 +71,11 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
       group_by(SEQ_ASSAY_ID) %>% 
       summarise_at(colnames(assay_DBS),sum)
     
-    assay_DBS_re <- data.frame(t(assay_DBS_10[, dinucleotideIncluded, drop = FALSE]))/10^6
+    ## assay_DBS_re <- data.frame(t(assay_DBS_10[, dinucleotideIncluded, drop = FALSE]))/10^6
+    assay_DBS_re <- data.frame(t(assay_DBS_10[, substr(DBS_order, 1, 2), drop = FALSE]))/10^6
     colnames(assay_DBS_re) <- assay_DBS_10$SEQ_ASSAY_ID
-    
+    rownames(assay_DBS_re) <- DBS_order
+
     return(assay_DBS_re)
 }
 

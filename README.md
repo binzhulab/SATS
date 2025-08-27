@@ -21,14 +21,14 @@ if (!requireNamespace("devtools", quietly = TRUE))
 	install.packages("devtools")
 devtools::install_github("binzhulab/SATS/source")
 ```
-Alternatively, download the package and follow the steps below. Download SATS_1.0.7.tar.gz (for Unix) or SATS_1.0.7.zip (for Windows, R version >= 4.1). To install SATS on Unix, enter the command from a Unix prompt:
+Alternatively, download the package and follow the steps below. Download SATS_1.0.8.tar.gz (for Unix) or SATS_1.0.8.zip (for Windows, R version >= 4.1). To install SATS on Unix, enter the command from a Unix prompt:
 ```
-R CMD INSTALL SATS_1.0.7.tar.gz -l path_to_install_package
+R CMD INSTALL SATS_1.0.8.tar.gz -l path_to_install_package
 ```
-Alternatively, SATS_1.0.7.tar.gz (for Unix) or SATS_1.0.7.zip (for Windows, R version >= 4.1) from the [Github page](https://github.com/binzhulab/SATS) are available and one may use the following commands:
+Alternatively, SATS_1.0.8.tar.gz (for Unix) or SATS_1.0.8.zip (for Windows, R version >= 4.1) from the [Github page](https://github.com/binzhulab/SATS) are available and one may use the following commands:
 ```
-install.packages("./SATS_1.0.7.tar.gz", repos = NULL, type = "source")
-install.packages("./SATS_1.0.7.zip", repos = NULL, type = "win.binary")
+install.packages("./SATS_1.0.8.tar.gz", repos = NULL, type = "source")
+install.packages("./SATS_1.0.8.zip", repos = NULL, type = "win.binary")
 ```
 Once the installation is successful, it can be loaded in **R** by calling 
 ```

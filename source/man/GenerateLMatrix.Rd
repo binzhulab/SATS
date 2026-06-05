@@ -19,10 +19,12 @@ column will be used as the column names for the resulting L matrix, ensuring eac
 column corresponds to a unique sample.
 
 It is important to understand the distinction between the two functions. 
-GeneratePanelSize() is a simpler utility that only calculates the total size 
-(in base pairs) of each panel type and does not require patient-level
-information. However, to generate the correctly dimensioned L matrix with
-the proper trinucleotide contexts for each specific sample, you must call
+GeneratePanelSize() calculates panel-level mutation-context opportunity
+counts for each sequencing assay. GenerateLMatrix() then expands those
+panel-level opportunity counts to the sample level by matching each
+patient to the corresponding SEQ_ASSAY_ID in Patient_Info. To generate the
+correctly dimensioned L matrix with the proper mutation-context
+opportunities for each sample, call GeneratePanelSize() first and then
 GenerateLMatrix().
 }
 
@@ -44,4 +46,3 @@ L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo)
 }
 %\keyword{ mutational signatures } 
 \seealso{ \code{\link{GeneratePanelSize}} }
-

@@ -92,7 +92,7 @@ rev_dinucleotide <- function(nt.seq){
 
 ## The following function is to create "L" matrix
 ## Please use the column names of the argument "genomic_information" identical to Chromosome, Start_Position, End_Position, SEQ_ASSAY_ID as in the above example
-## Chromosome: chromsome number
+## Chromosome: chromosome number
 ## Start_Position: start position of targeted panel
 ## End_Position: end position of targeted panel
 ## SEQ_ASSAY_ID: distinguish different panels

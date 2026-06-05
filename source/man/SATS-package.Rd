@@ -36,10 +36,15 @@ namely signature burden, is calculated for each targeted sequenced tumor.
 The main functions in this package are \code{\link{GenerateLMatrix}}, 
 \code{\link{EstimateSigActivity}},\cr 
 \code{\link{CalculateSignatureBurdens}}, and \code{\link{MappingSignature}}.
+
+The accompanying manuscript applies SATS to 111,711 targeted-sequenced tumors
+from AACR Project GENIE to construct a real-world, panel-calibrated pan-cancer
+catalogue of mutational signatures.
 }
 \references{
 Lee, D., Hua, M., Wang, D., Song, L., Yu, K., Yang, X., Shi, J., Landi, M., 
-Zhu, B. The mutational signatures of 100,477 targeted sequenced tumors. Submitted.
+Zhu, B. A real-world pan-cancer catalogue of mutational signatures from
+111,711 tumors. Submitted.
 }
 \author{Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>}
 \keyword{package}

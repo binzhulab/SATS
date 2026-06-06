@@ -48,12 +48,36 @@
         </div>
       </section>
 
-      <section class="intro-note">
+      <section class="study-overview" id="overview" aria-labelledby="overview-title">
+        <h2 id="overview-title">Study and catalogue overview</h2>
         <p>
           The accompanying manuscript applies SATS to 111,711 tumors from AACR
-          Project GENIE to construct a real-world, panel-calibrated pan-cancer
-          catalogue of targeted sequencing-derived mutational signatures.
+          Project GENIE version 13.0-public to construct a real-world,
+          panel-calibrated pan-cancer catalogue of targeted sequencing-derived
+          mutational signatures.
         </p>
+        <div class="overview-grid">
+          <figure class="overview-map">
+            <img src="assets/genie-site-distribution.png" alt="AACR Project GENIE participating center distribution across North America and Europe.">
+            <figcaption>GENIE participating centers and sample counts used for the targeted-sequencing catalogue.</figcaption>
+          </figure>
+          <div class="overview-metrics" aria-label="Study summary">
+            <p><strong>111,711</strong><span>tumors profiled by targeted sequencing</span></p>
+            <p><strong>North America and Europe</strong><span>real-world clinical sequencing programs</span></p>
+            <p><strong>26 SBS signatures</strong><span>detected across cancer categories</span></p>
+            <p><strong>12 DBS signatures</strong><span>detected from targeted sequencing data</span></p>
+          </div>
+        </div>
+        <div class="catalogue-grid">
+          <figure>
+            <img src="assets/sats-sbs-catalogue.png" alt="SATS SBS signature catalogue across cancer categories.">
+            <figcaption>SBS catalogue. Dot size indicates the proportion of tumors carrying each signature; stacked bars summarize signature-attributed mutation burden.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/sats-dbs-catalogue.png" alt="SATS DBS signature catalogue across cancer categories.">
+            <figcaption>DBS catalogue generated from targeted sequencing data.</figcaption>
+          </figure>
+        </div>
       </section>
 
       <section id="install">

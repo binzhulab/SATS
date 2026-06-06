@@ -22,10 +22,6 @@ The accompanying manuscript applies SATS to 111,711 tumors from AACR Project GEN
 SATS was developed using AACR Project GENIE version 13.0-public, a real-world targeted-sequencing cohort spanning clinical sequencing programs in North America and Europe.
 
 <p align="center">
-  <img width="500" alt="AACR Project GENIE logo" src="docs/assets/aacr-project-genie-logo.png">
-</p>
-
-<p align="center">
   <img width="780" alt="AACR Project GENIE participating center distribution across North America and Europe" src="docs/assets/genie-site-distribution.png">
 </p>
 

@@ -144,6 +144,69 @@ h1 {
   margin-bottom: 12px;
 }
 
+.study-overview {
+  display: grid;
+  gap: 16px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.overview-map,
+.catalogue-grid figure {
+  margin: 0;
+}
+
+.overview-map img,
+.catalogue-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.overview-map figcaption,
+.catalogue-grid figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.overview-metrics {
+  display: grid;
+  gap: 10px;
+}
+
+.overview-metrics p {
+  margin: 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--soft-border);
+}
+
+.overview-metrics strong {
+  display: block;
+  color: var(--accent);
+  font-size: 1.12rem;
+  line-height: 1.25;
+}
+
+.overview-metrics span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.catalogue-grid {
+  display: grid;
+  gap: 20px;
+}
+
 .tool-links {
   display: grid;
   gap: 8px;
@@ -295,6 +358,10 @@ footer {
   }
 
   .summary-list {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-grid {
     grid-template-columns: 1fr;
   }
 }

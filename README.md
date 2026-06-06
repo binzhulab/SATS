@@ -38,16 +38,14 @@ SATS was developed using AACR Project GENIE version 13.0-public, a real-world ta
 The resulting SATS catalogue includes **26 single base substitution (SBS) signatures** and **12 double base substitution (DBS) signatures** detected from targeted sequencing data. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and the stacked bars summarize signature-attributed mutation burden.
 
 <p align="center">
-  <img width="900" alt="SATS SBS signature catalogue across cancer categories" src="docs/assets/sats-sbs-catalogue.png">
+  <img width="900" alt="SATS SBS signature catalogue across cancer categories" src="docs/assets/sats-sbs-catalogue.png"><br>
+  <em><strong>Figure 2A.</strong> Pan-cancer catalogue of 26 single base substitution (SBS) signatures detected from AACR Project GENIE targeted sequencing data using SATS. Rows represent cancer categories and columns represent SBS signatures. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and stacked bars summarize signature-attributed mutation burden on the targeted-sequencing scale.</em>
 </p>
-
-<p align="center"><em>SBS catalogue generated from targeted sequencing data.</em></p>
 
 <p align="center">
-  <img width="900" alt="SATS DBS signature catalogue across cancer categories" src="docs/assets/sats-dbs-catalogue.png">
+  <img width="900" alt="SATS DBS signature catalogue across cancer categories" src="docs/assets/sats-dbs-catalogue.png"><br>
+  <em><strong>Figure 2B.</strong> Pan-cancer catalogue of 12 double base substitution (DBS) signatures detected from AACR Project GENIE targeted sequencing data using SATS. Rows represent cancer categories and columns represent DBS signatures. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and stacked bars summarize signature-attributed mutation burden on the targeted-sequencing scale.</em>
 </p>
-
-<p align="center"><em>DBS catalogue generated from targeted sequencing data.</em></p>
 
 > Targeted sequencing data should not be analyzed as if all tumors shared the same mutation opportunity. SATS models the panel context directly, then estimates signatures and burdens on the targeted-sequencing scale.
 

@@ -189,7 +189,7 @@ h1 {
 .overview-map figcaption,
 .sample-size-figure figcaption,
 .catalogue-grid figcaption {
-  margin-top: 8px;
+  margin-top: 4px;
   color: var(--muted);
   font-size: 0.92rem;
 }

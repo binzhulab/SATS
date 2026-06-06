@@ -26,6 +26,9 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 .badge { display: inline-flex; align-items: center; gap: 0; margin: 2px 3px; overflow: hidden; border-radius: 4px; color: #fff; font-size: 12px; line-height: 20px; font-weight: 600; vertical-align: middle; background: #276dc3; }
 .badge span { padding: 0 6px; background: rgba(0,0,0,.28); }
 .badge { padding-right: 6px; }
+.top-web-tools { margin: 14px 0 10px; line-height: 1.45; }
+.top-web-tools strong { display: block; margin-bottom: 3px; }
+.top-web-tools a { display: block; }
 .markdown-body > p:first-of-type { margin-top: 18px; }
 </style>
 </head>
@@ -34,7 +37,7 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 <div align="center">
 <img src="docs/assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)" width="780">
 <p><span class="badge"><span>version</span>1.0.8</span> <span class="badge"><span>R</span>&gt;=4.1.0</span> <span class="badge"><span>license</span>CC BY-NC 4.0</span> <span class="badge"><span>tests</span>testthat</span></p>
-<p><strong>National Cancer Institute (NCI) Web Tools:</strong> <a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a> | <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a></p>
+<p class="top-web-tools"><strong>National Cancer Institute (NCI) Web Tools</strong><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a></p>
 <p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> | <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a> | <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">R Manual</a> | <a href="https://github.com/binzhulab/SATS/tree/main/docs">Project Webpage</a></p>
 </div>
 <p>Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.</p>

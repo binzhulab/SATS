@@ -7,7 +7,11 @@
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-testthat-green)
 
-**National Cancer Institute (NCI) Web Tools:** [Interactive targeted-sequencing signature catalogue](https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS) | [Online signature refitting tool](https://analysistools.cancer.gov/mutational-signatures/#/refitting)
+<p>
+  <strong>National Cancer Institute (NCI) Web Tools</strong><br>
+  <a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a><br>
+  <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a>
+</p>
 
 [User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md) | [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf) | [R Manual](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf) | [Project Webpage](https://github.com/binzhulab/SATS/tree/main/docs)
 

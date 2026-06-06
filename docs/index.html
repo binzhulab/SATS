@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SATS | Signature Analyzer for Targeted Sequencing</title>
+    <meta
+      name="description"
+      content="SATS is a panel-aware R package for targeted sequencing mutational signature analysis, developed with a real-world pan-cancer catalogue from 111,711 tumors."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="page" id="top">
+      <header class="readme-header">
+        <h1>SATS</h1>
+        <p class="subtitle">Signature Analyzer for Targeted Sequencing</p>
+        <div class="badges" aria-label="Project badges">
+          <span>Version 1.0.8</span>
+          <span>R package</span>
+          <span>CC BY-NC 4.0</span>
+          <span>Tests included</span>
+        </div>
+        <p class="lead">
+          SATS is a panel-aware framework for mutational signature analysis in
+          targeted sequencing data. It supports de novo signature detection,
+          mapping to TMB-normalized reference signatures, individual-tumor
+          refitting and signature-attributed mutation burden estimation.
+        </p>
+        <p class="link-row">
+          <a href="https://github.com/binzhulab/SATS">GitHub</a>
+          <span>|</span>
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User guide PDF</a>
+          <span>|</span>
+          <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">Manual</a>
+          <span>|</span>
+          <a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Catalogue</a>
+          <span>|</span>
+          <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Refitting tool</a>
+        </p>
+      </header>
+
+      <section class="intro-note">
+        <p>
+          The accompanying manuscript applies SATS to 111,711 tumors from AACR
+          Project GENIE to construct a real-world, panel-calibrated pan-cancer
+          catalogue of targeted sequencing-derived mutational signatures.
+        </p>
+      </section>
+
+      <section id="install">
+        <h2>Quick install</h2>
+        <p>
+          SATS is currently distributed from GitHub. The package was formerly
+          available from CRAN, but the GitHub source tree is the recommended
+          installation route for the current version.
+        </p>
+        <pre><code>if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
+
+library(SATS)</code></pre>
+      </section>
+
+      <blockquote>
+        <p>
+          Targeted sequencing data should not be analyzed as if all tumors shared
+          the same mutation opportunity. SATS models the panel context directly,
+          then estimates signatures and burdens on the targeted-sequencing scale.
+        </p>
+      </blockquote>
+
+      <hr>
+
+      <section id="workflow">
+        <h2>Architecture and workflow</h2>
+        <p>
+          SATS separates panel-context generation, de novo signature detection,
+          signature mapping, single-tumor refitting and burden calculation. This
+          makes each analysis step explicit and reproducible.
+        </p>
+        <figure class="workflow-figure">
+          <img src="assets/sats-workflow.png" alt="SATS workflow schematic showing targeted sequencing mutation counts, panel context modeling, signature detection, mapping, refitting and burden estimation.">
+          <figcaption>SATS workflow for targeted sequencing-based mutational signature analysis.</figcaption>
+        </figure>
+        <div class="summary-list">
+          <p><strong>Generate panel context.</strong> Use <code>GeneratePanelSize()</code> and <code>GenerateLMatrix()</code> to construct sample-level opportunity matrices.</p>
+          <p><strong>Detect signatures.</strong> Estimate cohort-level profiles with <code>signeR</code> or another compatible extraction method using panel-adjusted opportunity counts.</p>
+          <p><strong>Map and refit.</strong> Map de novo profiles to TMB-normalized COSMIC reference signatures and refit signatures in individual tumors.</p>
+          <p><strong>Calculate burdens.</strong> Use <code>CalculateSignatureBurdens()</code> to estimate signature-attributed mutation counts for each tumor.</p>
+        </div>
+      </section>
+
+      <hr>
+
+      <section id="usage">
+        <h2>Basic usage</h2>
+        <h3>Generate a panel-context matrix</h3>
+        <pre><code>data(SimData, package = "SATS")
+
+Panel_context <- GeneratePanelSize(
+    genomic_information = SimData$PanelEx,
+    Class = "SBS",
+    SBS_order = "COSMIC",
+    ref.genome = "hg19"
+)
+
+L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo)</code></pre>
+
+        <h3>Estimate signature activity and burden</h3>
+        <pre><code>data(RefTMB, package = "SATS")
+
+SBS.list <- c("SBS1", "SBS2_13", "SBS4", "SBS5", "SBS6", "SBS89")
+W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
+
+H_hat <- EstimateSigActivity(V = SimData$V, L = SimData$L, W = W_star)
+SigBdn <- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</code></pre>
+      </section>
+
+      <hr>
+
+      <section id="quality">
+        <h2>Software quality</h2>
+        <p>
+          The repository includes unit tests, a minimal Nextflow example and a
+          Dockerfile for building an R environment with SATS and its core genomic
+          dependencies.
+        </p>
+        <ul>
+          <li><strong>Unit tests:</strong> cover <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
+          <li><strong>Workflow template:</strong> <code>nextflow/example1</code> calls <code>GeneratePanelSize()</code> on an input R data file.</li>
+          <li><strong>Container setup:</strong> the Dockerfile installs SATS and required R/Bioconductor dependencies.</li>
+        </ul>
+        <pre><code>cd source
+Rscript -e 'testthat::test_dir("tests/testthat")'</code></pre>
+      </section>
+
+      <hr>
+
+      <section id="resources">
+        <h2>Documentation and resources</h2>
+        <div class="resource-list">
+          <p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User guide</a> — installation, input format and example workflows.</p>
+          <p><a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">Package manual</a> — function-level R documentation.</p>
+          <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive catalogue</a> — SBS and DBS signature frequencies and etiologies.</p>
+          <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online refitting tool</a> — targeted sequencing signature refitting interface.</p>
+        </div>
+      </section>
+
+      <hr>
+
+      <section id="citation">
+        <h2>Citation</h2>
+        <p>
+          Lee et al., "A real-world pan-cancer catalogue of mutational signatures
+          from 111,711 tumors" (submitted).
+        </p>
+      </section>
+
+      <footer>
+        <p>SATS v1.0.8 · <a href="#top">Back to top</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

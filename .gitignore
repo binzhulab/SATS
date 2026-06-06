@@ -1,0 +1,10 @@
+.DS_Store
+*.Rcheck/
+source/check/
+source/src/*.o
+source/src/*.so
+source/src/symbols.rds
+nextflow/example1/work/
+nextflow/example1/.nextflow*
+nextflow/example1/outfile.rda
+nextflow/example1/r_libs/

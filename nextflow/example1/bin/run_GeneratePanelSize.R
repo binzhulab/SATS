@@ -1,4 +1,4 @@
-#!usr/bin/env/ Rscript
+#!/usr/bin/env Rscript
 
 # Get input and output files
 args    <- commandArgs(trailingOnly=TRUE)
@@ -24,14 +24,21 @@ if ("try-error" %in% class(tmp)) {
 obj <- c("genomic_information", "Class", "SBS_order", "ref.genome")
 if (!(obj[1] %in% tmp)) stop("ERROR: input file must contain the object 'genomic_information'")
 if (!(obj[2] %in% tmp)) Class      <- "SBS"
-if (!(obj[3] %in% tmp)) SVS_order  <- "COSMIC"
+if (!(obj[3] %in% tmp)) SBS_order  <- "COSMIC"
 if (!(obj[4] %in% tmp)) ref.genome <- "hg19"
 
-# Install devtools package 
-if (!require("devtools")) install.packages("devtools", repos="https://cloud.r-project.org")
-devtools::install_github("binzhulab/SATS", subdir="source", upgrade="never", lib="./")
+# Use an installed SATS package when available. Otherwise, install the current
+# GitHub source into a local library in the Nextflow work directory.
+local_lib <- file.path(getwd(), "r_libs")
+dir.create(local_lib, showWarnings=FALSE, recursive=TRUE)
+.libPaths(c(local_lib, .libPaths()))
 
-.libPaths(c("./", .libPaths()))
+if (!requireNamespace("SATS", quietly=TRUE)) {
+  if (!requireNamespace("remotes", quietly=TRUE)) {
+    install.packages("remotes", repos="https://cloud.r-project.org", lib=local_lib)
+  }
+  remotes::install_github("binzhulab/SATS", subdir="source", upgrade="never", lib=local_lib)
+}
 
 # Load SATS and run the function
 library(SATS)
@@ -39,6 +46,5 @@ library(SATS)
 ret <- SATS::GeneratePanelSize(genomic_information, Class=Class, SBS_order=SBS_order,
                                ref.genome=ref.genome)
 save(ret, file=outfile)
-
 
 

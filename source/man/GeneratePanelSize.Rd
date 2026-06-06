@@ -26,7 +26,7 @@ The last column 'SEQ_ASSAY_ID' distinguishes different panels consisting of the 
 Please note that the column names of 'genomic_information' identical to 'Chromosome', 
 'Start_Position', 'End_Position', 'SEQ_ASSAY_ID'.
 The second argument specifies mutation type order as either one of "COSMIC" or 
-"signeR" where "COSMIC" corresponds to the order from the COSMIC database v3.2 and 
+"signeR" where "COSMIC" corresponds to the 96 SBS mutation-type order used by COSMIC v3.2 and 
 "signeR" corresponds to the order from the signeR package.
 \bold{Note}: The result of 'GeneratePanelSize()' may NOT be an 'L' matrix. 
 The GenerateLMatrix() function can be used to construct the L matrix.
@@ -34,9 +34,10 @@ The resulting augmented matrix can be used as the opportunity matrix for 'signeR
 'L' matrix for 'EstimateSigActivity()' and 'CalculateSignatureBurdens()' functions. 
 Therefore, it is important the mutation type order (row names) should be the same as 
 input matrix (Mutation type matrix 'V'). 
-We highly recommend to confirm that both 'V' and 'L' matrices have the same mutation type 
-order corresponding to one of COSMIC database v3.2 or signeR package 
-(both have the same order but have different expression) to conduct the consistent analysis.
+We highly recommend confirming that both 'V' and 'L' matrices have the same mutation type 
+order. The SBS_order argument controls mutation-type ordering only; the COSMIC
+reference-signature version used for mapping is controlled separately by
+\code{\link{MappingSignature}}.
 
 }
 \value{ 

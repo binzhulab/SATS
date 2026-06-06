@@ -8,14 +8,14 @@ library(BSgenome.Hsapiens.UCSC.hg19) ## This package is for the HG19 reference g
 library(tidyverse)
 
 ## Example data and results
-path <- "path\to\data"
+path <- "path/to/data"
 Panel_1 <- read.table(file.path(path, "Panel_Info_1_assay.txt"), header = T, quote = "", sep="\t", stringsAsFactors = FALSE)
 Panel_2 <- read.table(file.path(path, "Panel_Info_2_assays.txt"), header = T, quote = "", sep="\t", stringsAsFactors = FALSE)
 Patient_Info <- read.table(file.path(path, "Patient_Info.txt"), header = T, quote = "", sep="\t", stringsAsFactors = FALSE)
 
 ## The following Panel_Context_generation() function can be used to create panel context matrix
 ## Please use the column names of the argument "genomic_information" identical to Chromosome, Start_Position, End_Position, SEQ_ASSAY_ID as in the above example
-## Chromosome: chromsome number
+## Chromosome: chromosome number
 ## Start_Position: start position of targeted panel
 ## End_Position: end position of targeted panel
 ## SEQ_ASSAY_ID: distinguish different panels
@@ -26,7 +26,7 @@ Panel_Context_generation <- function(genomic_information, Types = c("COSMIC", "s
     stop("Please specify the column names of the argument genomic_information in (Chromosome, Start_Position, End_Position, SEQ_ASSAY_ID)")
   } 
   if(length(Types) == 2){
-    stop("Please specifiy mutation types: avialable mutatioins types are either \"COSMIC\" or \"signeR\"")
+    stop("Please specify mutation types: available mutation types are either \"COSMIC\" or \"signeR\"")
   }
   
   # mutation type categories

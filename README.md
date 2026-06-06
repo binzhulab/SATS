@@ -47,8 +47,6 @@ The resulting SATS catalogue includes **26 single base substitution (SBS) signat
   <em><strong>Figure 2B.</strong> Pan-cancer catalogue of 12 double base substitution (DBS) signatures detected from AACR Project GENIE targeted sequencing data using SATS. Rows represent cancer categories and columns represent DBS signatures. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and stacked bars summarize signature-attributed mutation burden on the targeted-sequencing scale.</em>
 </p>
 
-> Targeted sequencing data should not be analyzed as if all tumors shared the same mutation opportunity. SATS models the panel context directly, then estimates signatures and burdens on the targeted-sequencing scale.
-
 ---
 
 ## Quick Install
@@ -83,6 +81,8 @@ SATS was formerly available from the [Comprehensive R Archive Network (CRAN)](ht
 ## Workflow
 
 SATS separates panel-context generation, de novo signature detection, signature mapping, individual-tumor refitting and burden calculation.
+
+> Targeted sequencing data should not be analyzed as if all tumors shared the same mutation opportunity. SATS models the panel context directly, then estimates signatures and burdens on the targeted-sequencing scale.
 
 <p align="center">
   <img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">

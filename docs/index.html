@@ -103,14 +103,6 @@ devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
 library(SATS)</code></pre>
       </section>
 
-      <blockquote>
-        <p>
-          Targeted sequencing data should not be analyzed as if all tumors shared
-          the same mutation opportunity. SATS models the panel context directly,
-          then estimates signatures and burdens on the targeted-sequencing scale.
-        </p>
-      </blockquote>
-
       <hr>
 
       <section id="workflow">
@@ -120,6 +112,13 @@ library(SATS)</code></pre>
           signature mapping, single-tumor refitting and burden calculation. This
           makes each analysis step explicit and reproducible.
         </p>
+        <blockquote>
+          <p>
+            Targeted sequencing data should not be analyzed as if all tumors shared
+            the same mutation opportunity. SATS models the panel context directly,
+            then estimates signatures and burdens on the targeted-sequencing scale.
+          </p>
+        </blockquote>
         <figure class="workflow-figure">
           <img src="assets/sats-workflow.png" alt="SATS workflow schematic showing targeted sequencing mutation counts, panel context modeling, signature detection, mapping, refitting and burden estimation.">
           <figcaption>SATS workflow for targeted sequencing-based mutational signature analysis.</figcaption>

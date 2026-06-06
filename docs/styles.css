@@ -170,11 +170,13 @@ h1 {
 }
 
 .overview-map,
+.sample-size-figure,
 .catalogue-grid figure {
   margin: 0;
 }
 
 .overview-map img,
+.sample-size-figure img,
 .catalogue-grid img {
   display: block;
   width: 100%;
@@ -185,6 +187,7 @@ h1 {
 }
 
 .overview-map figcaption,
+.sample-size-figure figcaption,
 .catalogue-grid figcaption {
   margin-top: 8px;
   color: var(--muted);

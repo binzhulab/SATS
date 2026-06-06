@@ -17,6 +17,30 @@ SATS is a panel-aware framework for mutational signature analysis in targeted se
 
 The accompanying manuscript applies SATS to 111,711 tumors from AACR Project GENIE to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.
 
+## Study and Catalogue Overview
+
+SATS was developed using AACR Project GENIE version 13.0-public, a real-world targeted-sequencing cohort spanning clinical sequencing programs in North America and Europe.
+
+<p align="center">
+  <img width="780" alt="AACR Project GENIE participating center distribution across North America and Europe" src="docs/assets/genie-site-distribution.png">
+</p>
+
+<p align="center"><em>GENIE participating centers and sample counts used for the targeted-sequencing mutational-signature catalogue.</em></p>
+
+The resulting SATS catalogue includes **26 SBS signatures** and **12 DBS signatures** detected from targeted sequencing data. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and the stacked bars summarize signature-attributed mutation burden.
+
+<p align="center">
+  <img width="900" alt="SATS SBS signature catalogue across cancer categories" src="docs/assets/sats-sbs-catalogue.png">
+</p>
+
+<p align="center"><em>SBS catalogue generated from targeted sequencing data.</em></p>
+
+<p align="center">
+  <img width="900" alt="SATS DBS signature catalogue across cancer categories" src="docs/assets/sats-dbs-catalogue.png">
+</p>
+
+<p align="center"><em>DBS catalogue generated from targeted sequencing data.</em></p>
+
 > Targeted sequencing data should not be analyzed as if all tumors shared the same mutation opportunity. SATS models the panel context directly, then estimates signatures and burdens on the targeted-sequencing scale.
 
 ---

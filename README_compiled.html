@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SATS README Preview</title>
+<style>
+:root { color-scheme: light; }
+body { margin: 0; background: #ffffff; color: #24292f; font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+.markdown-body { max-width: 980px; margin: 0 auto; padding: 36px 28px 64px; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { margin-top: 24px; margin-bottom: 12px; line-height: 1.25; }
+h2 { padding-bottom: 0.3em; border-bottom: 1px solid #d8dee4; }
+p { margin: 0 0 14px; }
+hr { border: 0; border-top: 1px solid #d8dee4; margin: 28px 0; }
+blockquote { margin: 18px 0; padding: 0 1em; color: #57606a; border-left: 0.25em solid #d0d7de; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 2em; }
+li { margin: 0.25em 0; }
+pre { margin: 12px 0 18px; padding: 16px; overflow: auto; background: #f6f8fa; border: 1px solid #d8dee4; border-radius: 6px; }
+code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; font-size: 0.92em; }
+p code, li code { padding: 0.16em 0.36em; background: #f6f8fa; border-radius: 6px; }
+img { max-width: 100%; height: auto; }
+div[align="center"], p[align="center"] { text-align: center; }
+p[align="center"] em { color: #57606a; font-size: 0.94em; }
+.badge { display: inline-flex; align-items: center; gap: 0; margin: 2px 3px; overflow: hidden; border-radius: 4px; color: #fff; font-size: 12px; line-height: 20px; font-weight: 600; vertical-align: middle; background: #276dc3; }
+.badge span { padding: 0 6px; background: rgba(0,0,0,.28); }
+.badge { padding-right: 6px; }
+.markdown-body > p:first-of-type { margin-top: 18px; }
+</style>
+</head>
+<body>
+<main class="markdown-body">
+<div align="center">
+<img src="docs/assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)" width="780">
+<p><span class="badge"><span>version</span>1.0.8</span> <span class="badge"><span>R</span>&gt;=4.1.0</span> <span class="badge"><span>license</span>CC BY-NC 4.0</span> <span class="badge"><span>tests</span>testthat</span></p>
+<p><strong>National Cancer Institute (NCI) Web Tools:</strong> <a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a> | <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a></p>
+<p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> | <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a> | <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">R Manual</a> | <a href="https://github.com/binzhulab/SATS/tree/main/docs">Project Webpage</a></p>
+</div>
+<p>Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.</p>
+<p>The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.</p>
+<h2 id="study-and-catalogue-overview">Study and Catalogue Overview</h2>
+<p>SATS was developed using AACR Project GENIE version 13.0-public, a real-world targeted-sequencing cohort spanning clinical sequencing programs in North America and Europe.</p>
+<p align="center">
+<img width="780" alt="AACR Project GENIE participating center distribution across North America and Europe" src="docs/assets/genie-site-distribution.png">
+</p>
+<p align="center"><em>GENIE participating centers and sample counts used for the targeted-sequencing mutational-signature catalogue.</em></p>
+<p>The resulting SATS catalogue includes <strong>26 single base substitution (SBS) signatures</strong> and <strong>12 double base substitution (DBS) signatures</strong> detected from targeted sequencing data. Dot size indicates the proportion of tumors carrying each signature within a cancer category, and the stacked bars summarize signature-attributed mutation burden.</p>
+<p align="center">
+<img width="900" alt="SATS SBS signature catalogue across cancer categories" src="docs/assets/sats-sbs-catalogue.png">
+</p>
+<p align="center"><em>SBS catalogue generated from targeted sequencing data.</em></p>
+<p align="center">
+<img width="900" alt="SATS DBS signature catalogue across cancer categories" src="docs/assets/sats-dbs-catalogue.png">
+</p>
+<p align="center"><em>DBS catalogue generated from targeted sequencing data.</em></p>
+<blockquote>
+<p>Targeted sequencing data should not be analyzed as if all tumors shared the same mutation opportunity. SATS models the panel context directly, then estimates signatures and burdens on the targeted-sequencing scale.</p>
+</blockquote>
+<hr>
+<h2 id="quick-install">Quick Install</h2>
+<p>The current source version in this repository is <strong>SATS v1.0.8</strong>. The recommended installation route is the GitHub source tree:</p>
+<pre><code class="language-r">if (!requireNamespace(&quot;devtools&quot;, quietly = TRUE))
+    install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;binzhulab/SATS&quot;, subdir = &quot;source&quot;, upgrade = &quot;never&quot;)
+
+library(SATS)</code></pre>
+<p>Alternatively, download <code>SATS_1.0.8.tar.gz</code> and install the source archive:</p>
+<pre><code class="language-bash">R CMD INSTALL SATS_1.0.8.tar.gz</code></pre>
+<p>SATS was formerly available from the <a href="https://CRAN.R-project.org/package=SATS">Comprehensive R Archive Network (CRAN)</a>. CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.</p>
+<hr>
+<h2 id="national-cancer-institute-nci-web-tools">National Cancer Institute (NCI) Web Tools</h2>
+<ul>
+<li><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a>: SBS and DBS signature frequencies, etiologies and cancer-type patterns from the targeted-sequencing catalogue.</li>
+<li><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a>: web interface for targeted sequencing signature refitting.</li>
+</ul>
+<hr>
+<h2 id="workflow">Workflow</h2>
+<p>SATS separates panel-context generation, de novo signature detection, signature mapping, individual-tumor refitting and burden calculation.</p>
+<p align="center">
+<img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">
+</p>
+<ol>
+<li><strong>Generate panel context</strong> with <code>GeneratePanelSize()</code> and <code>GenerateLMatrix()</code>.</li>
+<li><strong>Detect de novo signatures</strong> using panel-adjusted opportunity counts.</li>
+<li><strong>Map reference signatures</strong> with <code>MappingSignature()</code> and Catalogue of Somatic Mutations in Cancer (COSMIC) TMB-normalized signatures.</li>
+<li><strong>Refit and estimate burdens</strong> with <code>EstimateSigActivity()</code> and <code>CalculateSignatureBurdens()</code>.</li>
+</ol>
+<hr>
+<h2 id="basic-usage">Basic Usage</h2>
+<h3 id="generate-a-panel-context-matrix">Generate a panel-context matrix</h3>
+<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
+
+Panel_context &lt;- GeneratePanelSize(
+    genomic_information = SimData$PanelEx,
+    Class = &quot;SBS&quot;,
+    SBS_order = &quot;COSMIC&quot;,
+    ref.genome = &quot;hg19&quot;
+)
+
+L_mat &lt;- GenerateLMatrix(Panel_context, SimData$PatientInfo)</code></pre>
+<p><code>GeneratePanelSize()</code> accepts panel coordinates with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code> and <code>SEQ_ASSAY_ID</code>. The <code>ref.genome</code> argument supports <code>"hg19"</code> and <code>"hg38"</code>, with the corresponding Bioconductor reference genome package installed.</p>
+<h3 id="estimate-signature-activity-and-burden">Estimate signature activity and burden</h3>
+<pre><code class="language-r">data(RefTMB, package = &quot;SATS&quot;)
+
+SBS.list &lt;- c(&quot;SBS1&quot;, &quot;SBS2_13&quot;, &quot;SBS4&quot;, &quot;SBS5&quot;, &quot;SBS6&quot;, &quot;SBS89&quot;)
+W_star &lt;- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
+
+H_hat &lt;- EstimateSigActivity(V = SimData$V, L = SimData$L, W = W_star)
+SigBdn &lt;- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</code></pre>
+<p>For single-tumor or small-cohort refitting, use a cancer-type-matched signature set from <code>RefTMB$SBS_refSigs</code> or <code>RefTMB$DBS_refSigs</code>.</p>
+<hr>
+<h2 id="repository-layout">Repository Layout</h2>
+<ul>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/source"><code>source/</code></a>: current R package source.</li>
+<li><a href="https://github.com/binzhulab/SATS/blob/main/SATS_1.0.8.tar.gz"><code>SATS_1.0.8.tar.gz</code></a>: source archive for the current version.</li>
+<li><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md"><code>User_Guide_SATS_v1.0.8.md</code></a>: current user guide.</li>
+<li><a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf"><code>SATS-manual.pdf</code></a>: function-level R manual.</li>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/Generating_L"><code>Generating_L/</code></a>: panel-context generation helper scripts and example panel files.</li>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/nextflow/example1"><code>nextflow/example1/</code></a>: minimal Nextflow example for <code>GeneratePanelSize()</code>.</li>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/docs"><code>docs/</code></a>: static project webpage for GitHub Pages.</li>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/old_versions"><code>old_versions/</code></a>: older package archives.</li>
+</ul>
+<hr>
+<h2 id="software-quality">Software Quality</h2>
+<p>Unit tests are provided in <code>source/tests/testthat/</code> for the three main user-facing functions: <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>. Each test loads simulated data from <code>SimData</code> and compares the returned object with a stored expected result.</p>
+<p>Run tests locally:</p>
+<pre><code class="language-bash">cd source
+Rscript -e &#x27;testthat::test_dir(&quot;tests/testthat&quot;)&#x27;</code></pre>
+<p>Run a local package check:</p>
+<pre><code class="language-bash">R CMD check source --no-manual</code></pre>
+<p>The repository also includes a GitHub Actions workflow, <code>.github/workflows/R-CMD-check.yaml</code>, that runs <code>R CMD check</code> on Linux, macOS and Windows. A Dockerfile is provided for building an R environment with SATS and its core genomic dependencies installed.</p>
+<hr>
+<h2 id="input-expectations">Input Expectations</h2>
+<p>SATS currently expects users to provide summarized mutation-count matrices, panel-context matrices and panel-coordinate data frames with the required columns. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into mutation catalogue and panel-coordinate tables before running SATS.</p>
+<p>The row order of the mutation catalogue matrix <code>V</code>, panel-context matrix <code>L</code> and reference signature matrix <code>W</code> must match. For SBS analyses, the <code>SBS_order</code> argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by <code>MappingSignature(COSMICv=...)</code>, with <code>"v3.4"</code> as the current default.</p>
+<hr>
+<h2 id="citation">Citation</h2>
+<p>If you use SATS or the targeted-sequencing mutational-signature catalogue, please cite:</p>
+<p>Lee et al., "A real-world pan-cancer catalogue of mutational signatures from 111,711 tumors" (submitted).</p>
+</main>
+</body>
+</html>

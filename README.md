@@ -1,8 +1,6 @@
 <div align="center">
 
-# SATS
-
-**Signature Analyzer for Targeted Sequencing**
+<img src="docs/assets/sats-logo.png" alt="SATS - Signature Analyzer for Targeted Sequencing" width="780">
 
 ![Version](https://img.shields.io/badge/version-1.0.8-blue)
 ![R](https://img.shields.io/badge/R-%3E%3D4.1.0-276DC3)

@@ -114,6 +114,26 @@ h1 {
   margin: 0;
 }
 
+.nci-tools {
+  padding: 18px;
+  background: #f4fbfa;
+  border: 1px solid #cfe8e5;
+  border-radius: 6px;
+}
+
+.nci-tools h2 {
+  margin-bottom: 12px;
+}
+
+.tool-links {
+  display: grid;
+  gap: 8px;
+}
+
+.tool-links p {
+  margin: 0;
+}
+
 section {
   margin: 26px 0;
 }
@@ -216,7 +236,8 @@ li {
 }
 
 .summary-list p,
-.resource-list p {
+.resource-list p,
+.tool-links p {
   margin: 0;
 }
 

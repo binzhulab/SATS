@@ -63,12 +63,22 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 </p>
 <hr>
 <h2 id="quick-install">Quick Install</h2>
-<p>The current source version in this repository is <strong>SATS v1.0.9</strong>. The recommended installation route is the GitHub source tree:</p>
+<p>The current source version in this repository is <strong>SATS v1.0.9</strong>. Before the v1.0.9 branch is merged into <code>main</code>, install the current branch explicitly:</p>
 <pre><code class="language-r">if (!requireNamespace(&quot;devtools&quot;, quietly = TRUE))
     install.packages(&quot;devtools&quot;)
-devtools::install_github(&quot;binzhulab/SATS&quot;, subdir = &quot;source&quot;, upgrade = &quot;never&quot;)
+devtools::install_github(
+    &quot;binzhulab/SATS&quot;,
+    ref = &quot;software-reviewer-response-updates&quot;,
+    subdir = &quot;source&quot;,
+    upgrade = &quot;never&quot;
+)
 
-library(SATS)</code></pre>
+library(SATS)
+
+if (packageVersion(&quot;SATS&quot;) &lt; &quot;1.0.9&quot; ||
+    !&quot;GenerateVMatrix&quot; %in% getNamespaceExports(&quot;SATS&quot;)) {
+    stop(&quot;This workflow requires SATS &gt;= 1.0.9. Reinstall SATS and restart R.&quot;)
+}</code></pre>
 <p>Alternatively, download <code>SATS_1.0.9.tar.gz</code> and install the source archive:</p>
 <pre><code class="language-bash">R CMD INSTALL SATS_1.0.9.tar.gz</code></pre>
 <p>SATS was formerly available from the <a href="https://CRAN.R-project.org/package=SATS">Comprehensive R Archive Network (CRAN)</a>. CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.</p>

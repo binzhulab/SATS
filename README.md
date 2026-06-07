@@ -51,14 +51,24 @@ The resulting SATS catalogue includes **26 single base substitution (SBS) signat
 
 ## Quick Install
 
-The current source version in this repository is **SATS v1.0.9**. The recommended installation route is the GitHub source tree:
+The current source version in this repository is **SATS v1.0.9**. Before the v1.0.9 branch is merged into `main`, install the current branch explicitly:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
-devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
+devtools::install_github(
+    "binzhulab/SATS",
+    ref = "software-reviewer-response-updates",
+    subdir = "source",
+    upgrade = "never"
+)
 
 library(SATS)
+
+if (packageVersion("SATS") < "1.0.9" ||
+    !"GenerateVMatrix" %in% getNamespaceExports("SATS")) {
+    stop("This workflow requires SATS >= 1.0.9. Reinstall SATS and restart R.")
+}
 ```
 
 Alternatively, download `SATS_1.0.9.tar.gz` and install the source archive:

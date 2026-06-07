@@ -8,12 +8,17 @@ The accompanying manuscript applies SATS to 111,711 tumors from AACR Project GEN
 
 ## Installation
 
-The current source version in this repository is SATS v1.0.9. The recommended installation route is from the GitHub source tree:
+The current source version in this repository is SATS v1.0.9. Before the v1.0.9 branch is merged into `main`, install the current branch explicitly:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
-devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
+devtools::install_github(
+    "binzhulab/SATS",
+    ref = "software-reviewer-response-updates",
+    subdir = "source",
+    upgrade = "never"
+)
 ```
 
 Alternatively, download `SATS_1.0.9.tar.gz` from the repository and install the source archive:
@@ -32,6 +37,11 @@ SATS was formerly available from CRAN. CRAN currently lists the package as archi
 
 ```r
 library(SATS)
+
+if (packageVersion("SATS") < "1.0.9" ||
+    !"GenerateVMatrix" %in% getNamespaceExports("SATS")) {
+    stop("This guide requires SATS >= 1.0.9. Reinstall SATS and restart R.")
+}
 ```
 
 The de novo signature discovery examples use `signeR`, which should be installed separately if that step is run locally. SATS can still be used for preprocessing, signature mapping, refitting and burden calculation without running `signeR`.

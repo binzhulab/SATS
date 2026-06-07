@@ -52,7 +52,7 @@ SATS uses three main input matrices. The mutation catalogue matrix `V` has dimen
 
 The row order of `V`, `L` and `W` must match. For SBS analyses, SATS supports the COSMIC-style 96-channel order and the `signeR` order. The `SBS_order` argument in `GeneratePanelSize()` controls mutation-type ordering only; it does not select the COSMIC reference-signature version. The reference-signature version used by `MappingSignature()` is controlled separately by `COSMICv`, with `"v3.4"` as the current default.
 
-SATS accepts either summarized mutation-count and panel-context matrices or MAF-like mutation-record tables with panel-coordinate data frames. It does not directly ingest raw VCF or BED files. VCF/BED-derived data should first be converted into MAF-like mutation records and panel-coordinate tables before running SATS.
+The main workflow below starts from matched `V` and `L` matrices. If those matrices are already available, users can proceed directly to de novo signature detection, mapping, activity estimation and burden calculation. If users instead start from lower-level MAF-like mutation records and panel-coordinate information, `GenerateVMatrix()` and `GenerateLMatrix()` can first be used to construct matched `V` and `L` matrices; that preprocessing scenario is described after the main workflow.
 
 ## Example Data
 
@@ -63,93 +63,35 @@ data(SimData, package = "SATS")
 names(SimData)
 ```
 
-`SimData$V` is a simulated 96 x 10027 SBS mutation catalogue matrix and `SimData$L` is the corresponding panel-context matrix. `SimData$TrueW_TMB` and `SimData$TrueH` are the simulated TMB-normalized signature profiles and activity matrix used to generate `SimData$V`. `SimData$PanelEx` and `SimData$PatientInfo` provide example panel and sample annotation data for constructing an `L` matrix.
+`SimData$V` is a simulated 96 x 10027 SBS mutation catalogue matrix and `SimData$L` is the corresponding sample-level panel-context matrix. These two matrices are already matched and are used for the main executable workflow. `SimData$TrueW_TMB` and `SimData$TrueH` are the simulated TMB-normalized signature profiles and activity matrix used to generate `SimData$V`. `SimData$PanelEx` and `SimData$PatientInfo` provide separate panel-coordinate and sample-annotation examples for the preprocessing special case below.
 
-## Generating V and L from MAF-like Mutation Records
+## Main Analysis Workflow
 
-`GenerateVMatrix()` generates an SBS96 or DBS78 mutation-count matrix from a MAF-like mutation record table. The mutation record must contain `Chromosome`, `Start_Position`, `End_Position`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2` and `Tumor_Sample_Barcode`. SBS analyses use records with `Variant_Type == "SNP"` and DBS analyses use records with `Variant_Type == "DNP"`.
+The main analysis workflow starts from matched `V` and `L` matrices and proceeds through de novo signature detection, reference-signature mapping, sample-level activity estimation and signature-burden calculation.
 
-```r
-dir <- system.file("extdata", "refitting_examples", package = "SATS")
-sbs_file <- file.path(dir, "SBS_MAF_two_samples.txt")
-sbs_mut <- read.table(sbs_file, header = TRUE, sep = "\t", quote = "",
-                      stringsAsFactors = FALSE)
+### Prepare Matched V and L Matrices
 
-V_sbs <- GenerateVMatrix(sbs_mut, Class = "SBS", ref.genome = "hg19")
-dim(V_sbs)
-```
-
-`GenerateLMatrix()` prepares the matched panel-context matrix from a panel-coordinate table and a clinical sample table linking samples to sequencing assays. The clinical sample table must contain `SEQ_ASSAY_ID` and either `SAMPLE_ID` or `PATIENT_ID`. This two-function preprocessing workflow prepares input matrices for downstream SATS analysis but does not select cancer-type-specific signatures or run refitting automatically.
-
-```r
-data(SimData, package = "SATS")
-
-clinical_sample <- data.frame(
-    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
-    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
-    stringsAsFactors = FALSE
-)
-
-L_sbs <- GenerateLMatrix(
-    Panel_context = SimData$PanelEx,
-    Patient_Info = clinical_sample,
-    Class = "SBS",
-    SBS_order = "COSMIC",
-    ref.genome = "hg19"
-)
-
-if (!setequal(colnames(V_sbs), colnames(L_sbs)))
-    stop("V and L contain different sample IDs")
-if (!setequal(rownames(V_sbs), rownames(L_sbs)))
-    stop("V and L contain different mutation-context rows")
-
-L_sbs <- L_sbs[rownames(V_sbs), colnames(V_sbs), drop = FALSE]
-identical(rownames(V_sbs), rownames(L_sbs))
-identical(colnames(V_sbs), colnames(L_sbs))
-```
-
-## Generating the Panel-Context Matrix
-
-`GeneratePanelSize()` calculates panel-level mutation-context opportunity counts from panel-coordinate information. The input data frame must contain the columns `Chromosome`, `Start_Position`, `End_Position` and `SEQ_ASSAY_ID`. `Chromosome`, `Start_Position` and `End_Position` define the genomic interval, and `SEQ_ASSAY_ID` identifies the sequencing panel.
-
-```r
-data(SimData, package = "SATS")
-
-Panel_context <- GeneratePanelSize(
-    genomic_information = SimData$PanelEx,
-    Class = "SBS",
-    SBS_order = "COSMIC",
-    ref.genome = "hg19"
-)
-```
-
-`Class` can be `"SBS"` or `"DBS"`. For SBS analysis, `SBS_order` can be `"COSMIC"` or `"signeR"`. `ref.genome` can be `"hg19"` or `"hg38"` and requires the corresponding Bioconductor reference-genome package.
-
-`GenerateLMatrix()` converts panel-coordinate information or panel-level context counts into a sample-level `L` matrix by matching patient identifiers to sequencing panels. The `Patient_Info` data frame must contain `SEQ_ASSAY_ID` and either `PATIENT_ID` or `SAMPLE_ID`.
-
-```r
-PatientInfo <- SimData$PatientInfo[
-    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
-]
-
-L_mat <- GenerateLMatrix(Panel_context, PatientInfo)
-dim(L_mat)
-```
-
-The resulting `L` matrix is used as the opportunity matrix for `signeR()` and as the panel-context matrix for `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
-
-## De Novo Signature Detection and Mapping
-
-For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. After `V_mat` and `L_mat` have been generated and aligned, choose the initial discovery strategy according to cohort size. If the sample size is small, for example fewer than 100 samples, the individual matched samples can be used directly. If the cohort is very large, such as a real-world cohort with about 10,000 tumors, every 100 matched samples can be pooled into one profile before de novo discovery. The executable workflow below uses the pooled strategy, because it mirrors the large-cohort setting used by the SATS manuscript. The individual-sample strategy is shown only as an optional commented block and is not required for the remaining examples. SATS stores mutation contexts in rows and samples in columns, whereas `signeR()` expects samples in rows and mutation contexts in columns; therefore, the matched SATS matrices are transposed when passed to `signeR()`. In the pooled workflow, `V_sum` and `L_sum` are derived by summing the same sample columns of `V_mat` and `L_mat`; they are not separate input files. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The examples below use simulated package matrices so that the code can be run end to end.
+The workflow begins by assigning the simulated mutation-count matrix and panel-context matrix to `V_mat` and `L_mat`, then verifying that their mutation-context rows and sample columns are aligned.
 
 ```r
 data(SimData, package = "SATS")
 
 V_mat <- SimData$V
 L_mat <- SimData$L
+dim(V_mat)
+dim(L_mat)
+
 stopifnot(identical(rownames(V_mat), rownames(L_mat)))
 stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+```
 
+In this main workflow, `L_mat` is the generated panel-context matrix used as the opportunity matrix for `signeR()` and as the panel-context matrix for `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
+
+### Detect De Novo Signatures
+
+For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. After `V_mat` and `L_mat` have been generated and aligned, choose the initial discovery strategy according to cohort size. If the sample size is small, for example fewer than 100 samples, the individual matched samples can be used directly. If the cohort is very large, such as a real-world cohort with about 10,000 tumors, every 100 matched samples can be pooled into one profile before de novo discovery. The executable workflow below uses the pooled strategy, because it mirrors the large-cohort setting used by the SATS manuscript. The individual-sample strategy is shown only as an optional commented block and is not required for the remaining examples. SATS stores mutation contexts in rows and samples in columns, whereas `signeR()` expects samples in rows and mutation contexts in columns; therefore, the matched SATS matrices are transposed when passed to `signeR()`. In the pooled workflow, `V_sum` and `L_sum` are derived by summing the same sample columns of `V_mat` and `L_mat`; they are not separate input files. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The examples below use simulated package matrices so that the code can be run end to end.
+
+```r
 library(signeR)
 
 # Optional small-cohort strategy. This is commented out and is not run in the
@@ -180,6 +122,8 @@ W_hat <- signeR_re_pool$Phat
 stopifnot(identical(rownames(W_hat), rownames(V_sum)))
 ```
 
+### Map De Novo Profiles to Reference Signatures
+
 The de novo TMB-based profiles are then mapped to TMB-normalized reference signatures using `MappingSignature()`:
 
 ```r
@@ -194,7 +138,7 @@ MappedSig
 
 If `W_ref` is not supplied, `MappingSignature()` defaults to `COSMICv = "v3.4"` and uses `RefTMB$TMB_SBS_v3.4`. The returned data frame reports the selected reference signatures and the frequency with which each signature is selected across repeated penalized non-negative least-squares fits.
 
-## Estimating Signature Activities
+### Estimate Signature Activities
 
 After mapping the de novo profiles, use the mapped reference signatures for refitting. In this example, `SBS.list` is taken directly from `MappedSig$Reference`, so the activity and burden calculations are linked to the pooled `signeR()` discovery and mapping result rather than to a manually specified signature list.
 
@@ -219,7 +163,7 @@ H_hat$H
 
 `EstimateSigActivity()` uses an expectation-maximization algorithm and returns a list containing the estimated activity matrix `H`, the log-likelihood and a convergence flag. The estimated activity matrix has dimension `K x N`.
 
-## Calculating Signature Burdens
+### Calculate Signature Burdens
 
 Signature burdens are the expected numbers of mutations attributed to each selected signature in each tumor. They are calculated with `CalculateSignatureBurdens()`:
 
@@ -235,7 +179,56 @@ round(SigBdn[, 1:5], 2)
 
 The returned matrix has dimension `K x N`, with signatures in rows and samples in columns.
 
-## Single-Tumor or Small-Cohort Refitting
+## Special Case 1: Starting from MAF-like Mutation Records and Panel Information
+
+If matched `V` and `L` matrices are not yet available, SATS provides preprocessing functions to construct them from lower-level inputs. `GenerateVMatrix()` generates an SBS96 or DBS78 mutation-count matrix from a MAF-like mutation record table. The mutation record must contain `Chromosome`, `Start_Position`, `End_Position`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2` and `Tumor_Sample_Barcode`. SBS analyses use records with `Variant_Type == "SNP"` and DBS analyses use records with `Variant_Type == "DNP"`. SATS does not directly ingest raw VCF or BED files; those files should first be converted into MAF-like mutation-record and panel-coordinate tables.
+
+```r
+dir <- system.file("extdata", "refitting_examples", package = "SATS")
+sbs_file <- file.path(dir, "SBS_MAF_two_samples.txt")
+sbs_mut <- read.table(sbs_file, header = TRUE, sep = "\t", quote = "",
+                      stringsAsFactors = FALSE)
+
+V_sbs <- GenerateVMatrix(sbs_mut, Class = "SBS", ref.genome = "hg19")
+dim(V_sbs)
+```
+
+`GeneratePanelSize()` calculates panel-level mutation-context opportunity counts from panel-coordinate information. The input panel-coordinate data frame must contain `Chromosome`, `Start_Position`, `End_Position` and `SEQ_ASSAY_ID`. `GenerateLMatrix()` then converts panel-level context counts into a sample-level `L` matrix by matching sample identifiers to sequencing panels. The clinical sample table must contain `SEQ_ASSAY_ID` and either `SAMPLE_ID` or `PATIENT_ID`.
+
+```r
+data(SimData, package = "SATS")
+
+Panel_context_example <- GeneratePanelSize(
+    genomic_information = SimData$PanelEx,
+    Class = "SBS",
+    SBS_order = "COSMIC",
+    ref.genome = "hg19"
+)
+
+clinical_sample <- data.frame(
+    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
+    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
+    stringsAsFactors = FALSE
+)
+
+L_sbs <- GenerateLMatrix(
+    Panel_context = Panel_context_example,
+    Patient_Info = clinical_sample
+)
+
+if (!setequal(colnames(V_sbs), colnames(L_sbs)))
+    stop("V and L contain different sample IDs")
+if (!setequal(rownames(V_sbs), rownames(L_sbs)))
+    stop("V and L contain different mutation-context rows")
+
+L_sbs <- L_sbs[rownames(V_sbs), colnames(V_sbs), drop = FALSE]
+identical(rownames(V_sbs), rownames(L_sbs))
+identical(colnames(V_sbs), colnames(L_sbs))
+```
+
+The resulting `V_sbs` and `L_sbs` matrices can be used in the same main workflow shown above once sufficient samples are available for cohort-level signature discovery and mapping.
+
+## Special Case 2: Single-Tumor or Small-Cohort Refitting
 
 SATS can also refit a prespecified signature set in a single tumor or a small cohort. In this setting, the reference set should be constrained to signatures that are relevant to the tumor type and detectable in targeted sequencing data. `RefTMB$SBS_refSigs` and `RefTMB$DBS_refSigs` provide cancer-specific SBS and DBS reference-signature lists.
 

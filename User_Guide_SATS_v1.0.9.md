@@ -140,7 +140,7 @@ The resulting `L` matrix is used as the opportunity matrix for `signeR()` and as
 
 ## De Novo Signature Detection and Mapping
 
-For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. After `V_mat` and `L_mat` have been generated and aligned, choose the initial discovery strategy according to cohort size. If the sample size is small, for example fewer than 100 samples, the individual matched samples can be used directly. If the cohort is very large, such as a real-world cohort with about 10,000 tumors, every 100 matched samples can be pooled into one profile before de novo discovery. SATS stores mutation contexts in rows and samples in columns, whereas `signeR()` expects samples in rows and mutation contexts in columns; therefore, the matched SATS matrices are transposed when passed to `signeR()`. In the pooled workflow, `V_sum` and `L_sum` are derived by summing the same sample columns of `V_mat` and `L_mat`; they are not separate input files. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The examples below use simulated package matrices so that the code can be run end to end.
+For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. After `V_mat` and `L_mat` have been generated and aligned, choose the initial discovery strategy according to cohort size. If the sample size is small, for example fewer than 100 samples, the individual matched samples can be used directly. If the cohort is very large, such as a real-world cohort with about 10,000 tumors, every 100 matched samples can be pooled into one profile before de novo discovery. The executable workflow below uses the pooled strategy, because it mirrors the large-cohort setting used by the SATS manuscript. The individual-sample strategy is shown only as an optional commented block and is not required for the remaining examples. SATS stores mutation contexts in rows and samples in columns, whereas `signeR()` expects samples in rows and mutation contexts in columns; therefore, the matched SATS matrices are transposed when passed to `signeR()`. In the pooled workflow, `V_sum` and `L_sum` are derived by summing the same sample columns of `V_mat` and `L_mat`; they are not separate input files. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The examples below use simulated package matrices so that the code can be run end to end.
 
 ```r
 data(SimData, package = "SATS")
@@ -152,22 +152,21 @@ stopifnot(identical(colnames(V_mat), colnames(L_mat)))
 
 library(signeR)
 
-# Example 1: use individual matched samples directly for a small cohort.
-# If more than 100 samples are available, this example uses the first 100 only
-# to keep the demonstration compact.
-n_example <- min(100L, ncol(V_mat))
-sample_idx <- seq_len(n_example)
-V_fit <- V_mat[, sample_idx, drop = FALSE]
-L_fit <- L_mat[, sample_idx, drop = FALSE]
-stopifnot(identical(rownames(V_fit), rownames(L_fit)))
-stopifnot(identical(colnames(V_fit), colnames(L_fit)))
+# Optional small-cohort strategy. This is commented out and is not run in the
+# main guide workflow. Use it only when the cohort is small enough to fit
+# individual samples directly.
+# n_example <- min(100L, ncol(V_mat))
+# sample_idx <- seq_len(n_example)
+# V_fit <- V_mat[, sample_idx, drop = FALSE]
+# L_fit <- L_mat[, sample_idx, drop = FALSE]
+# stopifnot(identical(rownames(V_fit), rownames(L_fit)))
+# stopifnot(identical(colnames(V_fit), colnames(L_fit)))
+# set.seed(1)
+# signeR_re_100 <- signeR(M = t(V_fit), Opport = t(L_fit), nlim = c(1, 5))
+# W_hat_100 <- signeR_re_100$Phat
+# stopifnot(identical(rownames(W_hat_100), rownames(V_fit)))
 
-set.seed(1)
-signeR_re_100 <- signeR(M = t(V_fit), Opport = t(L_fit), nlim = c(1, 5))
-W_hat_100 <- signeR_re_100$Phat
-stopifnot(identical(rownames(W_hat_100), rownames(V_fit)))
-
-# Example 2: pool every 100 matched samples for a very large cohort.
+# Pooled strategy: pool every 100 matched samples for a very large cohort.
 # A cohort with about 10,000 tumors would yield about 100 pooled profiles.
 pool_id <- ceiling(seq_len(ncol(V_mat)) / 100)
 V_sum <- t(rowsum(t(V_mat), group = pool_id, reorder = FALSE))
@@ -197,18 +196,22 @@ If `W_ref` is not supplied, `MappingSignature()` defaults to `COSMICv = "v3.4"` 
 
 ## Estimating Signature Activities
 
-After defining the reference signatures to use for refitting, estimate signature activities with `EstimateSigActivity()`.
+After mapping the de novo profiles, use the mapped reference signatures for refitting. In this example, `SBS.list` is taken directly from `MappedSig$Reference`, so the activity and burden calculations are linked to the pooled `signeR()` discovery and mapping result rather than to a manually specified signature list.
 
 ```r
-data(SimData, package = "SATS")
 data(RefTMB, package = "SATS")
 
-SBS.list <- c("SBS1", "SBS2_13", "SBS4", "SBS5", "SBS6", "SBS89")
-W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
+SBS.list <- MappedSig$Reference
+if (length(SBS.list) == 0L)
+    stop("No mapped signatures were selected; inspect W_hat or adjust mapping thresholds.")
+if (!all(SBS.list %in% colnames(RefTMB$TMB_SBS_v3.4)))
+    stop("At least one mapped signature is absent from the reference matrix.")
+
+W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list, drop = FALSE])
 
 H_hat <- EstimateSigActivity(
-    V = SimData$V,
-    L = SimData$L,
+    V = V_mat,
+    L = L_mat,
     W = W_star
 )
 H_hat$H
@@ -222,7 +225,7 @@ Signature burdens are the expected numbers of mutations attributed to each selec
 
 ```r
 SigBdn <- CalculateSignatureBurdens(
-    L = SimData$L,
+    L = L_mat,
     W = W_star,
     H = H_hat$H
 )

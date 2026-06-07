@@ -2,7 +2,7 @@
 
 <img src="docs/assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)" width="780">
 
-![Version](https://img.shields.io/badge/version-1.0.8-blue)
+![Version](https://img.shields.io/badge/version-1.0.9-blue)
 ![R](https://img.shields.io/badge/R-%3E%3D4.1.0-276DC3)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-testthat-green)
@@ -13,7 +13,7 @@
   <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a>
 </p>
 
-[User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md) | [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf) | [R Manual](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf) | [Project Webpage](https://github.com/binzhulab/SATS/tree/main/docs)
+[User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md) | [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf) | [R Manual](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf) | [Project Webpage](https://github.com/binzhulab/SATS/tree/main/docs)
 
 </div>
 
@@ -51,7 +51,7 @@ The resulting SATS catalogue includes **26 single base substitution (SBS) signat
 
 ## Quick Install
 
-The current source version in this repository is **SATS v1.0.8**. The recommended installation route is the GitHub source tree:
+The current source version in this repository is **SATS v1.0.9**. The recommended installation route is the GitHub source tree:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
@@ -61,10 +61,10 @@ devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
 library(SATS)
 ```
 
-Alternatively, download `SATS_1.0.8.tar.gz` and install the source archive:
+Alternatively, download `SATS_1.0.9.tar.gz` and install the source archive:
 
 ```bash
-R CMD INSTALL SATS_1.0.8.tar.gz
+R CMD INSTALL SATS_1.0.9.tar.gz
 ```
 
 SATS was formerly available from the [Comprehensive R Archive Network (CRAN)](https://CRAN.R-project.org/package=SATS). CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.
@@ -97,7 +97,7 @@ SATS separates panel-context generation, de novo signature detection, signature 
 
 ## Usage and Examples
 
-The full executable workflow is maintained in the [User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md) and [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf). It includes:
+The full executable workflow is maintained in the [User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md) and [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf). It includes:
 
 - generating matched `V` and `L` matrices from MAF-like mutation records and panel-coordinate tables;
 - checking and aligning sample IDs and mutation-context rows between `V` and `L`;
@@ -112,8 +112,8 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 ## Repository Layout
 
 - [`source/`](https://github.com/binzhulab/SATS/tree/main/source): current R package source, including preprocessing functions for MAF-like mutation records.
-- [`SATS_1.0.8.tar.gz`](https://github.com/binzhulab/SATS/blob/main/SATS_1.0.8.tar.gz): source archive for the current version.
-- [`User_Guide_SATS_v1.0.8.md`](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md): current user guide.
+- [`SATS_1.0.9.tar.gz`](https://github.com/binzhulab/SATS/blob/main/SATS_1.0.9.tar.gz): source archive for the current version.
+- [`User_Guide_SATS_v1.0.9.md`](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md): current user guide.
 - [`SATS-manual.pdf`](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf): function-level R manual.
 - [`Generating_L/`](https://github.com/binzhulab/SATS/tree/main/Generating_L): panel-context generation helper scripts and example panel files.
 - [`nextflow/example1/`](https://github.com/binzhulab/SATS/tree/main/nextflow/example1): minimal Nextflow example for `GeneratePanelSize()`.

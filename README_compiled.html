@@ -36,9 +36,9 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 <main class="markdown-body">
 <div align="center">
 <img src="docs/assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)" width="780">
-<p><span class="badge"><span>version</span>1.0.8</span> <span class="badge"><span>R</span>&gt;=4.1.0</span> <span class="badge"><span>license</span>CC BY-NC 4.0</span> <span class="badge"><span>tests</span>testthat</span></p>
+<p><span class="badge"><span>version</span>1.0.9</span> <span class="badge"><span>R</span>&gt;=4.1.0</span> <span class="badge"><span>license</span>CC BY-NC 4.0</span> <span class="badge"><span>tests</span>testthat</span></p>
 <p class="top-web-tools"><strong>National Cancer Institute (NCI) Web Tools</strong><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a></p>
-<p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> | <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a> | <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">R Manual</a> | <a href="https://github.com/binzhulab/SATS/tree/main/docs">Project Webpage</a></p>
+<p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md">User Guide</a> | <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf">User Guide PDF</a> | <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">R Manual</a> | <a href="https://github.com/binzhulab/SATS/tree/main/docs">Project Webpage</a></p>
 </div>
 <p>Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling generation of SBS/DBS mutation count matrices from MAF-like mutation records, de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.</p>
 <p>The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.</p>
@@ -63,14 +63,14 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 </p>
 <hr>
 <h2 id="quick-install">Quick Install</h2>
-<p>The current source version in this repository is <strong>SATS v1.0.8</strong>. The recommended installation route is the GitHub source tree:</p>
+<p>The current source version in this repository is <strong>SATS v1.0.9</strong>. The recommended installation route is the GitHub source tree:</p>
 <pre><code class="language-r">if (!requireNamespace(&quot;devtools&quot;, quietly = TRUE))
     install.packages(&quot;devtools&quot;)
 devtools::install_github(&quot;binzhulab/SATS&quot;, subdir = &quot;source&quot;, upgrade = &quot;never&quot;)
 
 library(SATS)</code></pre>
-<p>Alternatively, download <code>SATS_1.0.8.tar.gz</code> and install the source archive:</p>
-<pre><code class="language-bash">R CMD INSTALL SATS_1.0.8.tar.gz</code></pre>
+<p>Alternatively, download <code>SATS_1.0.9.tar.gz</code> and install the source archive:</p>
+<pre><code class="language-bash">R CMD INSTALL SATS_1.0.9.tar.gz</code></pre>
 <p>SATS was formerly available from the <a href="https://CRAN.R-project.org/package=SATS">Comprehensive R Archive Network (CRAN)</a>. CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.</p>
 <hr>
 <h2 id="national-cancer-institute-nci-web-tools">National Cancer Institute (NCI) Web Tools</h2>
@@ -95,7 +95,7 @@ library(SATS)</code></pre>
 </ol>
 <hr>
 <h2 id="usage-and-examples">Usage and Examples</h2>
-<p>The full executable workflow is maintained in the <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> and <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a>. It includes:</p>
+<p>The full executable workflow is maintained in the <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md">User Guide</a> and <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf">User Guide PDF</a>. It includes:</p>
 <ul>
 <li>generating matched <code>V</code> and <code>L</code> matrices from MAF-like mutation records and panel-coordinate tables;</li>
 <li>checking and aligning sample IDs and mutation-context rows between <code>V</code> and <code>L</code>;</li>
@@ -108,8 +108,8 @@ library(SATS)</code></pre>
 <h2 id="repository-layout">Repository Layout</h2>
 <ul>
 <li><a href="https://github.com/binzhulab/SATS/tree/main/source"><code>source/</code></a>: current R package source, including preprocessing functions for MAF-like mutation records.</li>
-<li><a href="https://github.com/binzhulab/SATS/blob/main/SATS_1.0.8.tar.gz"><code>SATS_1.0.8.tar.gz</code></a>: source archive for the current version.</li>
-<li><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md"><code>User_Guide_SATS_v1.0.8.md</code></a>: current user guide.</li>
+<li><a href="https://github.com/binzhulab/SATS/blob/main/SATS_1.0.9.tar.gz"><code>SATS_1.0.9.tar.gz</code></a>: source archive for the current version.</li>
+<li><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md"><code>User_Guide_SATS_v1.0.9.md</code></a>: current user guide.</li>
 <li><a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf"><code>SATS-manual.pdf</code></a>: function-level R manual.</li>
 <li><a href="https://github.com/binzhulab/SATS/tree/main/Generating_L"><code>Generating_L/</code></a>: panel-context generation helper scripts and example panel files.</li>
 <li><a href="https://github.com/binzhulab/SATS/tree/main/nextflow/example1"><code>nextflow/example1/</code></a>: minimal Nextflow example for <code>GeneratePanelSize()</code>.</li>

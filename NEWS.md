@@ -1,6 +1,6 @@
 # SATS News
 
-## Unreleased
+## SATS 1.0.9
 
 - Added `GenerateVMatrix()` to generate SBS96 or DBS78 mutation-count matrices
   from MAF-like mutation-record tables.

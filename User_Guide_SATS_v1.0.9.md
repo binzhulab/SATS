@@ -1,6 +1,6 @@
 # SATS User Guide
 
-Version: SATS 1.0.8
+Version: SATS 1.0.9
 
 SATS (Signature Analyzer for Targeted Sequencing) is an R package for mutational signature analysis in targeted sequencing data. The method models panel-specific mutation opportunity, so it can be used for de novo signature detection, mapping of de novo profiles to tumor mutational burden (TMB)-normalized reference signatures, signature refitting in individual tumors, and calculation of signature-attributed mutation burdens.
 
@@ -8,7 +8,7 @@ The accompanying manuscript applies SATS to 111,711 tumors from AACR Project GEN
 
 ## Installation
 
-The current source version in this repository is SATS v1.0.8. The recommended installation route is from the GitHub source tree:
+The current source version in this repository is SATS v1.0.9. The recommended installation route is from the GitHub source tree:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
@@ -16,16 +16,16 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
 ```
 
-Alternatively, download `SATS_1.0.8.tar.gz` from the repository and install the source archive:
+Alternatively, download `SATS_1.0.9.tar.gz` from the repository and install the source archive:
 
 ```bash
-R CMD INSTALL SATS_1.0.8.tar.gz
+R CMD INSTALL SATS_1.0.9.tar.gz
 ```
 
 The source archive can also be installed from within R:
 
 ```r
-install.packages("./SATS_1.0.8.tar.gz", repos = NULL, type = "source")
+install.packages("./SATS_1.0.9.tar.gz", repos = NULL, type = "source")
 ```
 
 SATS was formerly available from CRAN. CRAN currently lists the package as archived, so the GitHub source installation above is the recommended installation route for the current version. After installation, load the package with:

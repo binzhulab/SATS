@@ -28,8 +28,11 @@ Please note that the column names of 'genomic_information' identical to 'Chromos
 The second argument specifies mutation type order as either one of "COSMIC" or 
 "signeR" where "COSMIC" corresponds to the 96 SBS mutation-type order used by COSMIC v3.2 and 
 "signeR" corresponds to the order from the signeR package.
-\bold{Note}: The result of 'GeneratePanelSize()' may NOT be an 'L' matrix. 
-The GenerateLMatrix() function can be used to construct the L matrix.
+\bold{Note}: The result of 'GeneratePanelSize()' may NOT be an 'L' matrix.
+For the standard preprocessing workflow, users can call
+\code{\link{GenerateLMatrix}} directly with panel-coordinate and sample-panel
+annotation data. \code{GeneratePanelSize()} is retained as a lower-level helper
+for users who want to inspect or reuse panel-level context counts.
 The resulting augmented matrix can be used as the opportunity matrix for 'signeR()' function, 
 'L' matrix for 'EstimateSigActivity()' and 'CalculateSignatureBurdens()' functions. 
 Therefore, it is important the mutation type order (row names) should be the same as 
@@ -50,22 +53,26 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 }
 \examples{
   data(SimData, package="SATS")
+  keep <- match(SimData$PatientInfo$SEQ_ASSAY_ID,
+                unique(SimData$PanelEx$SEQ_ASSAY_ID), nomatch=0) > 0
+  PatientInfo <- SimData$PatientInfo[keep, ]
 
   ## For the single base substitution (SBS) case:
   Panel_context1 <- GeneratePanelSize(genomic_information = SimData$PanelEx, Class = "SBS",  
                                       SBS_order = "COSMIC", ref.genome="hg19")
-  L_mat1 <- GenerateLMatrix(Panel_context1, SimData$PatientInfo)
+  L_mat1 <- GenerateLMatrix(Panel_context1, PatientInfo)
   Panel_context2 <- GeneratePanelSize(genomic_information = SimData$PanelEx, Class = "SBS",  
                                       SBS_order = "signeR", ref.genome="hg19")
-  L_mat2 <- GenerateLMatrix(Panel_context2, SimData$PatientInfo)
+  L_mat2 <- GenerateLMatrix(Panel_context2, PatientInfo)
 
   ## For the double base substitution (DBS) case:
   Panel_context_DBS <- GeneratePanelSize(genomic_information = SimData$PanelEx, Class = "DBS", 
                                          ref.genome = "hg19")
-  L_mat_DBS  <- GenerateLMatrix(Panel_context_DBS, SimData$PatientInfo)
+  L_mat_DBS  <- GenerateLMatrix(Panel_context_DBS, PatientInfo)
 
   # For more detailed usage, please refer to README and the user manual
   # in https://github.com/binzhulab/SATS/tree/main 
 }
 %\keyword{ mutational signatures } 
-%\seealso{ \code{\link{EstimateSigActivity}} }
+\seealso{ \code{\link{GenerateLMatrix}}, \code{\link{GenerateVMatrix}},
+\code{\link{EstimateSigActivity}} }

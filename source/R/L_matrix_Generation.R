@@ -11,7 +11,7 @@ GeneratePanelSize <- function(genomic_information, Class = c("SBS", "DBS"), SBS_
     check_Types(SBS_order)
     ret <- GeneratePanelSize_SBS(genomic_information, Types=SBS_order, ref.genome=ref.genome)
   } else {
-    ret <- GeneratePanelSize_DBS(genomic_information)
+    ret <- GeneratePanelSize_DBS(genomic_information, ref.genome=ref.genome)
   }
   ret
 }
@@ -31,8 +31,8 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
                    "TGAA", "TGAC", "TGAT", "TGCA", "TGCC", "TGCT", "TGGA", "TGGC", "TGGT", 
                    "TTAA", "TTAC", "TTAG", "TTCA", "TTCC", "TTCG", "TTGA", "TTGC", "TTGG")
 
-    Seq_assay_GRanges <- GRanges(seqnames=paste0("chr",genomic_information$Chromosome),
-                                 IRanges(start = genomic_information$Start_Position, end=genomic_information$End_Position), 
+    Seq_assay_GRanges <- GRanges(seqnames=sats_seqnames(genomic_information$Chromosome),
+                                 IRanges(start = genomic_information$Start_Position, end=genomic_information$End_Position),
                                  strand = "+")
     
     # get sequences
@@ -170,8 +170,8 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
   AGtoCT_idx = tri_nt_CT_idx[tri_nt_comp[c(A_idx,G_idx)]]
   
   
-  Seq_assay_GRanges <- GRanges(seqnames = paste0("chr",genomic_information$Chromosome),
-                               IRanges(start = genomic_information$Start_Position-1, 
+  Seq_assay_GRanges <- GRanges(seqnames = sats_seqnames(genomic_information$Chromosome),
+                               IRanges(start = genomic_information$Start_Position-1,
                                end=genomic_information$End_Position+1), strand = "+")
   
   Seq_assay_n = length(Seq_assay_GRanges)
@@ -225,8 +225,11 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
 ## PATIENT_ID: patient ID corresponds to SEQ_ASSAY_ID
 ## SEQ_ASSAY_ID: SEQ_ASSAY_ID contained in Panel_context
 L_matrix_generation <- function(Panel_context, Patient_Info){
-  
+
   idx <- Patient_Info$SEQ_ASSAY_ID %in% colnames(Panel_context)
+  if (any(!idx)) {
+    warning(sum(!idx), " sample(s) have SEQ_ASSAY_ID values not present in Panel_context and were removed")
+  }
   L <- Panel_context[, Patient_Info$SEQ_ASSAY_ID[idx]]
   colnames(L) <- Patient_Info$PATIENT_ID[idx]
   #if(sum(idx) != nrow(Patient_Info)){
@@ -238,10 +241,21 @@ L_matrix_generation <- function(Panel_context, Patient_Info){
   return(L)
 }
 
-GenerateLMatrix <- function(Panel_context, Patient_Info) {
+GenerateLMatrix <- function(Panel_context, Patient_Info, Class = c("SBS", "DBS"),
+                            SBS_order = c("COSMIC", "signeR"), ref.genome = "hg19") {
 
-  check_Panel_context(Panel_context)
   check_Patient_Info(Patient_Info)
+  Patient_Info <- standardize_Patient_Info(Patient_Info)
+
+  if (is_genomic_info_input(Panel_context)) {
+    Class <- match.arg(Class)
+    SBS_order <- match.arg(SBS_order)
+    Panel_context <- GeneratePanelSize(genomic_information = Panel_context,
+                                       Class = Class, SBS_order = SBS_order,
+                                       ref.genome = ref.genome)
+  } else {
+    check_Panel_context(Panel_context)
+  }
 
   ret <- L_matrix_generation(Panel_context, Patient_Info)
   ret

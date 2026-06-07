@@ -40,7 +40,7 @@ SATS uses three main input matrices. The mutation catalogue matrix `V` has dimen
 
 The row order of `V`, `L` and `W` must match. For SBS analyses, SATS supports the COSMIC-style 96-channel order and the `signeR` order. The `SBS_order` argument in `GeneratePanelSize()` controls mutation-type ordering only; it does not select the COSMIC reference-signature version. The reference-signature version used by `MappingSignature()` is controlled separately by `COSMICv`, with `"v3.4"` as the current default.
 
-SATS currently expects summarized mutation-count matrices, panel-context matrices and panel-coordinate data frames. It does not directly ingest raw VCF or BED files. VCF/BED-derived data should first be converted into mutation catalogue and panel-coordinate tables before running SATS.
+SATS accepts either summarized mutation-count and panel-context matrices or MAF-like mutation-record tables with panel-coordinate data frames. It does not directly ingest raw VCF or BED files. VCF/BED-derived data should first be converted into MAF-like mutation records and panel-coordinate tables before running SATS.
 
 ## Example Data
 
@@ -52,6 +52,49 @@ names(SimData)
 ```
 
 `SimData$V` is a simulated 96 x 10027 SBS mutation catalogue matrix and `SimData$L` is the corresponding panel-context matrix. `SimData$TrueW_TMB` and `SimData$TrueH` are the simulated TMB-normalized signature profiles and activity matrix used to generate `SimData$V`. `SimData$PanelEx` and `SimData$PatientInfo` provide example panel and sample annotation data for constructing an `L` matrix.
+
+## Generating V and L from MAF-like Mutation Records
+
+`GenerateVMatrix()` generates an SBS96 or DBS78 mutation-count matrix from a MAF-like mutation record table. The mutation record must contain `Chromosome`, `Start_Position`, `End_Position`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2` and `Tumor_Sample_Barcode`. SBS analyses use records with `Variant_Type == "SNP"` and DBS analyses use records with `Variant_Type == "DNP"`.
+
+```r
+dir <- system.file("extdata", "refitting_examples", package = "SATS")
+sbs_file <- file.path(dir, "SBS_MAF_two_samples.txt")
+sbs_mut <- read.table(sbs_file, header = TRUE, sep = "\t", quote = "",
+                      stringsAsFactors = FALSE)
+
+V_sbs <- GenerateVMatrix(sbs_mut, Class = "SBS", ref.genome = "hg19")
+dim(V_sbs)
+```
+
+`GenerateLMatrix()` prepares the matched panel-context matrix from a panel-coordinate table and a clinical sample table linking samples to sequencing assays. The clinical sample table must contain `SEQ_ASSAY_ID` and either `SAMPLE_ID` or `PATIENT_ID`. This two-function preprocessing workflow prepares input matrices for downstream SATS analysis but does not select cancer-type-specific signatures or run refitting automatically.
+
+```r
+data(SimData, package = "SATS")
+
+clinical_sample <- data.frame(
+    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
+    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
+    stringsAsFactors = FALSE
+)
+
+L_sbs <- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = clinical_sample,
+    Class = "SBS",
+    SBS_order = "COSMIC",
+    ref.genome = "hg19"
+)
+
+if (!setequal(colnames(V_sbs), colnames(L_sbs)))
+    stop("V and L contain different sample IDs")
+if (!setequal(rownames(V_sbs), rownames(L_sbs)))
+    stop("V and L contain different mutation-context rows")
+
+L_sbs <- L_sbs[rownames(V_sbs), colnames(V_sbs), drop = FALSE]
+identical(rownames(V_sbs), rownames(L_sbs))
+identical(colnames(V_sbs), colnames(L_sbs))
+```
 
 ## Generating the Panel-Context Matrix
 
@@ -70,10 +113,14 @@ Panel_context <- GeneratePanelSize(
 
 `Class` can be `"SBS"` or `"DBS"`. For SBS analysis, `SBS_order` can be `"COSMIC"` or `"signeR"`. `ref.genome` can be `"hg19"` or `"hg38"` and requires the corresponding Bioconductor reference-genome package.
 
-`GenerateLMatrix()` converts panel-level context counts into a sample-level `L` matrix by matching patient identifiers to sequencing panels. The `Patient_Info` data frame must contain `PATIENT_ID` and `SEQ_ASSAY_ID`.
+`GenerateLMatrix()` converts panel-coordinate information or panel-level context counts into a sample-level `L` matrix by matching patient identifiers to sequencing panels. The `Patient_Info` data frame must contain `SEQ_ASSAY_ID` and either `PATIENT_ID` or `SAMPLE_ID`.
 
 ```r
-L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo)
+PatientInfo <- SimData$PatientInfo[
+    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
+]
+
+L_mat <- GenerateLMatrix(Panel_context, PatientInfo)
 dim(L_mat)
 ```
 
@@ -81,13 +128,12 @@ The resulting `L` matrix is used as the opportunity matrix for `signeR()` and as
 
 ## De Novo Signature Detection and Mapping
 
-For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. For large cohorts, samples may be grouped or pooled for computational feasibility before running de novo signature detection.
+For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. For large cohorts, samples may be grouped or pooled for computational feasibility before running de novo signature detection. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The small example below uses simulated package profiles to demonstrate the mapping step with executable code.
 
 ```r
-library(signeR)
+data(SimData, package = "SATS")
 
-signeR_re <- signeR(M = V_sum, Opport = L_sum, nlim = c(1, 5))
-W_hat <- signeR_re$Phat
+W_hat <- SimData$TrueW_TMB[, c("SBS1", "SBS4"), drop = FALSE]
 ```
 
 The de novo TMB-based profiles are then mapped to TMB-normalized reference signatures using `MappingSignature()`:
@@ -157,6 +203,7 @@ W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
 
 V1 <- SimData$SingleTumorEx[, "singleV", drop = FALSE]
 L1 <- SimData$SingleTumorEx[, "singleL", drop = FALSE]
+colnames(V1) <- colnames(L1) <- "single_tumor"
 
 H_hat <- EstimateSigActivity(V = V1, L = L1, W = W_star)
 SigBdn <- CalculateSignatureBurdens(L = L1, W = W_star, H = H_hat$H)
@@ -166,7 +213,7 @@ This workflow supports targeted-sequencing refitting when the set of signatures 
 
 ## Tests, Workflow Example and Docker
 
-Unit tests are provided in `source/tests/testthat/` for `CalculateSignatureBurdens()`, `EstimateSigActivity()` and `GeneratePanelSize()`. To run them locally:
+Unit tests are provided in `source/tests/testthat/` for `CalculateSignatureBurdens()`, `EstimateSigActivity()`, `GeneratePanelSize()`, `GenerateVMatrix()` and `GenerateLMatrix()`. To run them locally:
 
 ```bash
 cd source

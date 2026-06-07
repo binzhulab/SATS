@@ -17,7 +17,7 @@
 
 </div>
 
-Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.
+Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling generation of SBS/DBS mutation count matrices from MAF-like mutation records, de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.
 
 The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.
 
@@ -88,7 +88,7 @@ SATS separates panel-context generation, de novo signature detection, signature 
   <img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">
 </p>
 
-1. **Generate panel context** with `GeneratePanelSize()` and `GenerateLMatrix()`.
+1. **Prepare matched mutation-count and panel-context matrices** from MAF-like mutation records, panel coordinates and sample-panel annotations using `GenerateVMatrix()` and `GenerateLMatrix()`.
 2. **Detect de novo signatures** using panel-adjusted opportunity counts.
 3. **Map reference signatures** with `MappingSignature()` and Catalogue of Somatic Mutations in Cancer (COSMIC) TMB-normalized signatures.
 4. **Refit and estimate burdens** with `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
@@ -97,26 +97,75 @@ SATS separates panel-context generation, de novo signature detection, signature 
 
 ## Basic Usage
 
-### Generate a panel-context matrix
+### Generate matched V and L matrices from MAF-like mutation records
 
 ```r
 data(SimData, package = "SATS")
 
-Panel_context <- GeneratePanelSize(
-    genomic_information = SimData$PanelEx,
+sbs_file <- system.file(
+    "extdata", "refitting_examples", "SBS_MAF_two_samples.txt",
+    package = "SATS"
+)
+sbs_mut <- read.table(
+    sbs_file, header = TRUE, sep = "\t", quote = "",
+    stringsAsFactors = FALSE
+)
+
+clinical_sample <- data.frame(
+    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
+    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
+    stringsAsFactors = FALSE
+)
+
+V_mat <- GenerateVMatrix(
+    mutation_record = sbs_mut,
+    Class = "SBS",
+    ref.genome = "hg19"
+)
+
+L_mat <- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = clinical_sample,
+    Class = "SBS",
+    ref.genome = "hg19"
+)
+
+if (!setequal(colnames(V_mat), colnames(L_mat)))
+    stop("V and L contain different sample IDs")
+if (!setequal(rownames(V_mat), rownames(L_mat)))
+    stop("V and L contain different mutation-context rows")
+
+L_mat <- L_mat[rownames(V_mat), colnames(V_mat), drop = FALSE]
+stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+stopifnot(identical(rownames(V_mat), rownames(L_mat)))
+```
+
+`GenerateVMatrix()` accepts MAF-like mutation records with `Chromosome`, `Start_Position`, `End_Position`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2` and `Tumor_Sample_Barcode`. `GenerateLMatrix()` accepts panel-coordinate information and a sample-panel annotation table containing `SAMPLE_ID` or `PATIENT_ID`, together with `SEQ_ASSAY_ID`. The returned `V` and `L` matrices should have identical row and column order before downstream SATS analysis.
+
+### Generate an L matrix from panel coordinates
+
+```r
+data(SimData, package = "SATS")
+
+PatientInfo <- SimData$PatientInfo[
+    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
+]
+
+L_mat <- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = PatientInfo,
     Class = "SBS",
     SBS_order = "COSMIC",
     ref.genome = "hg19"
 )
-
-L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo)
 ```
 
-`GeneratePanelSize()` accepts panel coordinates with `Chromosome`, `Start_Position`, `End_Position` and `SEQ_ASSAY_ID`. The `ref.genome` argument supports `"hg19"` and `"hg38"`, with the corresponding Bioconductor reference genome package installed.
+`GenerateLMatrix()` accepts panel coordinates with `Chromosome`, `Start_Position`, `End_Position` and `SEQ_ASSAY_ID`. The `ref.genome` argument supports `"hg19"` and `"hg38"`, with the corresponding Bioconductor reference genome package installed. `GeneratePanelSize()` remains available as a lower-level helper when users want to inspect panel-level context counts before expanding them to samples.
 
 ### Estimate signature activity and burden
 
 ```r
+data(SimData, package = "SATS")
 data(RefTMB, package = "SATS")
 
 SBS.list <- c("SBS1", "SBS2_13", "SBS4", "SBS5", "SBS6", "SBS89")
@@ -132,7 +181,7 @@ For single-tumor or small-cohort refitting, use a cancer-type-matched signature 
 
 ## Repository Layout
 
-- [`source/`](https://github.com/binzhulab/SATS/tree/main/source): current R package source.
+- [`source/`](https://github.com/binzhulab/SATS/tree/main/source): current R package source, including preprocessing functions for MAF-like mutation records.
 - [`SATS_1.0.8.tar.gz`](https://github.com/binzhulab/SATS/blob/main/SATS_1.0.8.tar.gz): source archive for the current version.
 - [`User_Guide_SATS_v1.0.8.md`](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md): current user guide.
 - [`SATS-manual.pdf`](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf): function-level R manual.
@@ -145,7 +194,7 @@ For single-tumor or small-cohort refitting, use a cancer-type-matched signature 
 
 ## Software Quality
 
-Unit tests are provided in `source/tests/testthat/` for the three main user-facing functions: `CalculateSignatureBurdens()`, `EstimateSigActivity()` and `GeneratePanelSize()`. Each test loads simulated data from `SimData` and compares the returned object with a stored expected result.
+Unit tests are provided in `source/tests/testthat/` for the main user-facing functions, including `GenerateVMatrix()`, `GenerateLMatrix()`, `GeneratePanelSize()`, `CalculateSignatureBurdens()` and `EstimateSigActivity()`. The tests use simulated package data and small MAF-like mutation-record examples.
 
 Run tests locally:
 
@@ -166,7 +215,7 @@ The repository also includes a GitHub Actions workflow, `.github/workflows/R-CMD
 
 ## Input Expectations
 
-SATS currently expects users to provide summarized mutation-count matrices, panel-context matrices and panel-coordinate data frames with the required columns. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into mutation catalogue and panel-coordinate tables before running SATS.
+SATS accepts either summarized mutation-count and panel-context matrices or MAF-like mutation-record tables with panel-coordinate data frames. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into MAF-like mutation records and panel-coordinate tables before running SATS.
 
 The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and reference signature matrix `W` must match. For SBS analyses, the `SBS_order` argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by `MappingSignature(COSMICv=...)`, with `"v3.4"` as the current default.
 

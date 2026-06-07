@@ -33,8 +33,8 @@ through the Expectation-Maximization (EM) algorithm.
 Finally, the expected number of mutations attributed by a signature, 
 namely signature burden, is calculated for each targeted sequenced tumor.
 
-The main functions in this package are \code{\link{GenerateLMatrix}}, 
-\code{\link{EstimateSigActivity}},\cr 
+The main functions in this package are \code{\link{GenerateVMatrix}},
+\code{\link{GenerateLMatrix}}, \code{\link{EstimateSigActivity}},\cr
 \code{\link{CalculateSignatureBurdens}}, and \code{\link{MappingSignature}}.
 
 The accompanying manuscript applies SATS to 111,711 targeted-sequenced tumors

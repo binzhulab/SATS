@@ -25,6 +25,11 @@ The catalog signature profile matrix has dimension of P by K
 (the number of signatures). For single base substitutions (SBS), 
 P is 96. For the objects V, L, and W, we must have dim(V) = dim(L) 
 and ncol(W) = K, where K is the number of signatures.
+When row names and column names are present, \code{EstimateSigActivity()}
+checks that \code{V}, \code{L} and \code{W} contain matched mutation
+contexts and matched sample IDs. If the same names are present in a different
+order, \code{L} and \code{W} are reordered to match \code{V}; if named entries
+differ between matrices, the function stops with an error.
 EstimateSigActivity() uses the EM algorithm to estimate signature 
 n.start, iter.max and eps control EM part. Because the convergence 
 to a local saddle point can be an issue of the EM algorithm, 

@@ -1,5 +1,10 @@
 CalculateSignatureBurdens <- function(L, W, H) {
 
+  aligned <- align_L_W_H(L, W, H)
+  L <- aligned$L
+  W <- aligned$W
+  H <- aligned$H
+
   # Check for errors with inputs
   check_L_W_H(L, W, H) 
 
@@ -43,6 +48,11 @@ sigExp_setReturn <- function(L, W, H) {
 }
 
 EstimateSigActivity <- function(V, L, W, n.start=50, iter.max=5000, eps=1e-5) {
+
+  aligned <- align_L_W_V(L, W, V)
+  L <- aligned$L
+  W <- aligned$W
+  V <- aligned$V
 
   # Check for errors with inputs
   check_L_W_V(L, W, V)

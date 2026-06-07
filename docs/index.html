@@ -108,7 +108,7 @@ library(SATS)</code></pre>
       <section id="workflow">
         <h2>Architecture and workflow</h2>
         <p>
-          SATS separates panel-context generation, de novo signature detection,
+          SATS separates mutation-count generation, panel-context generation, de novo signature detection,
           signature mapping, single-tumor refitting and burden calculation. This
           makes each analysis step explicit and reproducible.
         </p>
@@ -124,7 +124,8 @@ library(SATS)</code></pre>
           <figcaption>SATS workflow for targeted sequencing-based mutational signature analysis.</figcaption>
         </figure>
         <div class="summary-list">
-          <p><strong>Generate panel context.</strong> Use <code>GeneratePanelSize()</code> and <code>GenerateLMatrix()</code> to construct sample-level opportunity matrices.</p>
+          <p><strong>Prepare V and L matrices.</strong> Use <code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code> to construct matched mutation-count and panel-context matrices from MAF-like mutation records, panel coordinates and sample-panel annotations.</p>
+          <p><strong>Inspect panel context.</strong> Use <code>GeneratePanelSize()</code> as a lower-level helper when panel-level context counts need to be inspected before sample-level expansion.</p>
           <p><strong>Detect signatures.</strong> Estimate cohort-level profiles with <code>signeR</code> or another compatible extraction method using panel-adjusted opportunity counts.</p>
           <p><strong>Map and refit.</strong> Map de novo profiles to TMB-normalized Catalogue of Somatic Mutations in Cancer (COSMIC) reference signatures and refit signatures in individual tumors.</p>
           <p><strong>Calculate burdens.</strong> Use <code>CalculateSignatureBurdens()</code> to estimate signature-attributed mutation counts for each tumor.</p>
@@ -135,20 +136,65 @@ library(SATS)</code></pre>
 
       <section id="usage">
         <h2>Basic usage</h2>
-        <h3>Generate a panel-context matrix</h3>
+        <h3>Generate matched V and L matrices from MAF-like records</h3>
         <pre><code>data(SimData, package = "SATS")
 
-Panel_context <- GeneratePanelSize(
-    genomic_information = SimData$PanelEx,
+sbs_file <- system.file(
+    "extdata", "refitting_examples", "SBS_MAF_two_samples.txt",
+    package = "SATS"
+)
+sbs_mut <- read.table(
+    sbs_file, header = TRUE, sep = "\t", quote = "",
+    stringsAsFactors = FALSE
+)
+
+clinical_sample <- data.frame(
+    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
+    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
+    stringsAsFactors = FALSE
+)
+
+V_mat <- GenerateVMatrix(
+    mutation_record = sbs_mut,
     Class = "SBS",
-    SBS_order = "COSMIC",
     ref.genome = "hg19"
 )
 
-L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo)</code></pre>
+L_mat <- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = clinical_sample,
+    Class = "SBS",
+    ref.genome = "hg19"
+)
+
+if (!setequal(colnames(V_mat), colnames(L_mat)))
+    stop("V and L contain different sample IDs")
+if (!setequal(rownames(V_mat), rownames(L_mat)))
+    stop("V and L contain different mutation-context rows")
+
+L_mat <- L_mat[rownames(V_mat), colnames(V_mat), drop = FALSE]
+stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+stopifnot(identical(rownames(V_mat), rownames(L_mat)))
+</code></pre>
+
+        <h3>Generate an L matrix from panel coordinates</h3>
+        <pre><code>data(SimData, package = "SATS")
+
+PatientInfo <- SimData$PatientInfo[
+    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
+]
+
+L_mat <- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = PatientInfo,
+    Class = "SBS",
+    SBS_order = "COSMIC",
+    ref.genome = "hg19"
+)</code></pre>
 
         <h3>Estimate signature activity and burden</h3>
-        <pre><code>data(RefTMB, package = "SATS")
+        <pre><code>data(SimData, package = "SATS")
+data(RefTMB, package = "SATS")
 
 SBS.list <- c("SBS1", "SBS2_13", "SBS4", "SBS5", "SBS6", "SBS89")
 W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
@@ -167,7 +213,7 @@ SigBdn <- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</cod
           dependencies.
         </p>
         <ul>
-          <li><strong>Unit tests:</strong> cover <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
+          <li><strong>Unit tests:</strong> cover <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
           <li><strong>Workflow template:</strong> <code>nextflow/example1</code> calls <code>GeneratePanelSize()</code> on an input R data file.</li>
           <li><strong>Container setup:</strong> the Dockerfile installs SATS and required R/Bioconductor dependencies.</li>
         </ul>

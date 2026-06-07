@@ -40,7 +40,7 @@ p[align="center"] em { color: #57606a; font-size: 0.94em; }
 <p class="top-web-tools"><strong>National Cancer Institute (NCI) Web Tools</strong><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive targeted-sequencing signature catalogue</a><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a></p>
 <p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> | <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a> | <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">R Manual</a> | <a href="https://github.com/binzhulab/SATS/tree/main/docs">Project Webpage</a></p>
 </div>
-<p>Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.</p>
+<p>Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling generation of SBS/DBS mutation count matrices from MAF-like mutation records, de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.</p>
 <p>The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.</p>
 <h2 id="study-and-catalogue-overview">Study and Catalogue Overview</h2>
 <p>SATS was developed using AACR Project GENIE version 13.0-public, a real-world targeted-sequencing cohort spanning clinical sequencing programs in North America and Europe.</p>
@@ -88,27 +88,71 @@ library(SATS)</code></pre>
 <img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">
 </p>
 <ol>
-<li><strong>Generate panel context</strong> with <code>GeneratePanelSize()</code> and <code>GenerateLMatrix()</code>.</li>
+<li><strong>Prepare matched mutation-count and panel-context matrices</strong> from MAF-like mutation records, panel coordinates and sample-panel annotations using <code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code>.</li>
 <li><strong>Detect de novo signatures</strong> using panel-adjusted opportunity counts.</li>
 <li><strong>Map reference signatures</strong> with <code>MappingSignature()</code> and Catalogue of Somatic Mutations in Cancer (COSMIC) TMB-normalized signatures.</li>
 <li><strong>Refit and estimate burdens</strong> with <code>EstimateSigActivity()</code> and <code>CalculateSignatureBurdens()</code>.</li>
 </ol>
 <hr>
 <h2 id="basic-usage">Basic Usage</h2>
-<h3 id="generate-a-panel-context-matrix">Generate a panel-context matrix</h3>
+<h3 id="generate-matched-v-and-l-matrices-from-maf-like-mutation-records">Generate matched V and L matrices from MAF-like mutation records</h3>
 <pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
 
-Panel_context &lt;- GeneratePanelSize(
-    genomic_information = SimData$PanelEx,
+sbs_file &lt;- system.file(
+    &quot;extdata&quot;, &quot;refitting_examples&quot;, &quot;SBS_MAF_two_samples.txt&quot;,
+    package = &quot;SATS&quot;
+)
+sbs_mut &lt;- read.table(
+    sbs_file, header = TRUE, sep = &quot;\t&quot;, quote = &quot;&quot;,
+    stringsAsFactors = FALSE
+)
+
+clinical_sample &lt;- data.frame(
+    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
+    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
+    stringsAsFactors = FALSE
+)
+
+V_mat &lt;- GenerateVMatrix(
+    mutation_record = sbs_mut,
     Class = &quot;SBS&quot;,
-    SBS_order = &quot;COSMIC&quot;,
     ref.genome = &quot;hg19&quot;
 )
 
-L_mat &lt;- GenerateLMatrix(Panel_context, SimData$PatientInfo)</code></pre>
-<p><code>GeneratePanelSize()</code> accepts panel coordinates with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code> and <code>SEQ_ASSAY_ID</code>. The <code>ref.genome</code> argument supports <code>"hg19"</code> and <code>"hg38"</code>, with the corresponding Bioconductor reference genome package installed.</p>
+L_mat &lt;- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = clinical_sample,
+    Class = &quot;SBS&quot;,
+    ref.genome = &quot;hg19&quot;
+)
+
+if (!setequal(colnames(V_mat), colnames(L_mat)))
+    stop(&quot;V and L contain different sample IDs&quot;)
+if (!setequal(rownames(V_mat), rownames(L_mat)))
+    stop(&quot;V and L contain different mutation-context rows&quot;)
+
+L_mat &lt;- L_mat[rownames(V_mat), colnames(V_mat), drop = FALSE]
+stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+stopifnot(identical(rownames(V_mat), rownames(L_mat)))</code></pre>
+<p><code>GenerateVMatrix()</code> accepts MAF-like mutation records with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code>, <code>Variant_Type</code>, <code>Reference_Allele</code>, <code>Tumor_Seq_Allele2</code> and <code>Tumor_Sample_Barcode</code>. <code>GenerateLMatrix()</code> accepts panel-coordinate information and a sample-panel annotation table containing <code>SAMPLE_ID</code> or <code>PATIENT_ID</code>, together with <code>SEQ_ASSAY_ID</code>. The returned <code>V</code> and <code>L</code> matrices should have identical row and column order before downstream SATS analysis.</p>
+<h3 id="generate-an-l-matrix-from-panel-coordinates">Generate an L matrix from panel coordinates</h3>
+<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
+
+PatientInfo &lt;- SimData$PatientInfo[
+    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
+]
+
+L_mat &lt;- GenerateLMatrix(
+    Panel_context = SimData$PanelEx,
+    Patient_Info = PatientInfo,
+    Class = &quot;SBS&quot;,
+    SBS_order = &quot;COSMIC&quot;,
+    ref.genome = &quot;hg19&quot;
+)</code></pre>
+<p><code>GenerateLMatrix()</code> accepts panel coordinates with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code> and <code>SEQ_ASSAY_ID</code>. The <code>ref.genome</code> argument supports <code>"hg19"</code> and <code>"hg38"</code>, with the corresponding Bioconductor reference genome package installed. <code>GeneratePanelSize()</code> remains available as a lower-level helper when users want to inspect panel-level context counts before expanding them to samples.</p>
 <h3 id="estimate-signature-activity-and-burden">Estimate signature activity and burden</h3>
-<pre><code class="language-r">data(RefTMB, package = &quot;SATS&quot;)
+<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
+data(RefTMB, package = &quot;SATS&quot;)
 
 SBS.list &lt;- c(&quot;SBS1&quot;, &quot;SBS2_13&quot;, &quot;SBS4&quot;, &quot;SBS5&quot;, &quot;SBS6&quot;, &quot;SBS89&quot;)
 W_star &lt;- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
@@ -119,7 +163,7 @@ SigBdn &lt;- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</
 <hr>
 <h2 id="repository-layout">Repository Layout</h2>
 <ul>
-<li><a href="https://github.com/binzhulab/SATS/tree/main/source"><code>source/</code></a>: current R package source.</li>
+<li><a href="https://github.com/binzhulab/SATS/tree/main/source"><code>source/</code></a>: current R package source, including preprocessing functions for MAF-like mutation records.</li>
 <li><a href="https://github.com/binzhulab/SATS/blob/main/SATS_1.0.8.tar.gz"><code>SATS_1.0.8.tar.gz</code></a>: source archive for the current version.</li>
 <li><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md"><code>User_Guide_SATS_v1.0.8.md</code></a>: current user guide.</li>
 <li><a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf"><code>SATS-manual.pdf</code></a>: function-level R manual.</li>
@@ -130,7 +174,7 @@ SigBdn &lt;- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</
 </ul>
 <hr>
 <h2 id="software-quality">Software Quality</h2>
-<p>Unit tests are provided in <code>source/tests/testthat/</code> for the three main user-facing functions: <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>. Each test loads simulated data from <code>SimData</code> and compares the returned object with a stored expected result.</p>
+<p>Unit tests are provided in <code>source/tests/testthat/</code> for the main user-facing functions, including <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>GeneratePanelSize()</code>, <code>CalculateSignatureBurdens()</code> and <code>EstimateSigActivity()</code>. The tests use simulated package data and small MAF-like mutation-record examples.</p>
 <p>Run tests locally:</p>
 <pre><code class="language-bash">cd source
 Rscript -e &#x27;testthat::test_dir(&quot;tests/testthat&quot;)&#x27;</code></pre>
@@ -139,7 +183,7 @@ Rscript -e &#x27;testthat::test_dir(&quot;tests/testthat&quot;)&#x27;</code></pr
 <p>The repository also includes a GitHub Actions workflow, <code>.github/workflows/R-CMD-check.yaml</code>, that runs <code>R CMD check</code> on Linux, macOS and Windows. A Dockerfile is provided for building an R environment with SATS and its core genomic dependencies installed.</p>
 <hr>
 <h2 id="input-expectations">Input Expectations</h2>
-<p>SATS currently expects users to provide summarized mutation-count matrices, panel-context matrices and panel-coordinate data frames with the required columns. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into mutation catalogue and panel-coordinate tables before running SATS.</p>
+<p>SATS accepts either summarized mutation-count and panel-context matrices or MAF-like mutation-record tables with panel-coordinate data frames. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into MAF-like mutation records and panel-coordinate tables before running SATS.</p>
 <p>The row order of the mutation catalogue matrix <code>V</code>, panel-context matrix <code>L</code> and reference signature matrix <code>W</code> must match. For SBS analyses, the <code>SBS_order</code> argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by <code>MappingSignature(COSMICv=...)</code>, with <code>"v3.4"</code> as the current default.</p>
 <hr>
 <h2 id="citation">Citation</h2>

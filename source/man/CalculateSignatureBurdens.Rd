@@ -25,6 +25,11 @@ of P by K (the number of signatures) and the activity matrix H is of
 If \code{K} is the number of signatures and \code{N} is
   the number of samples, then \code{H} must be of dimension \code{K X N},
   \code{ncol(L) = N}, and \code{ncol(W) = K}.
+When row names and column names are present, \code{CalculateSignatureBurdens()}
+checks that \code{L}, \code{W} and \code{H} contain matched mutation contexts,
+signature names and sample IDs. If the same names are present in a different
+order, \code{L} and \code{W} are reordered to match \code{H}; if named entries
+differ between matrices, the function stops with an error.
 For the catalog signature profile matrix \code{W}, reference SBS TMB
 signature profiles in \code{data(SimData)} can be used. 
 }

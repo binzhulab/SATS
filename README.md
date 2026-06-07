@@ -13,7 +13,7 @@
   <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a>
 </p>
 
-[User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md) | [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf) | [R Manual](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf) | [Project Webpage](https://github.com/binzhulab/SATS/tree/main/docs)
+[User Guide](User_Guide_SATS_v1.0.9.md) | [User Guide PDF](User_Guide_SATS_v1.0.9.pdf) | [R Manual](SATS-manual.pdf) | [Project Webpage](docs/)
 
 </div>
 
@@ -107,7 +107,7 @@ SATS separates panel-context generation, de novo signature detection, signature 
 
 ## Usage and Examples
 
-The full executable workflow is maintained in the [User Guide](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md) and [User Guide PDF](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.pdf). It includes:
+The full executable workflow is maintained in the [User Guide](User_Guide_SATS_v1.0.9.md) and [User Guide PDF](User_Guide_SATS_v1.0.9.pdf). It includes:
 
 - generating matched `V` and `L` matrices from MAF-like mutation records and panel-coordinate tables;
 - checking and aligning sample IDs and mutation-context rows between `V` and `L`;
@@ -121,14 +121,14 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 
 ## Repository Layout
 
-- [`source/`](https://github.com/binzhulab/SATS/tree/main/source): current R package source, including preprocessing functions for MAF-like mutation records.
-- [`SATS_1.0.9.tar.gz`](https://github.com/binzhulab/SATS/blob/main/SATS_1.0.9.tar.gz): source archive for the current version.
-- [`User_Guide_SATS_v1.0.9.md`](https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.9.md): current user guide.
-- [`SATS-manual.pdf`](https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf): function-level R manual.
-- [`Generating_L/`](https://github.com/binzhulab/SATS/tree/main/Generating_L): panel-context generation helper scripts and example panel files.
-- [`nextflow/example1/`](https://github.com/binzhulab/SATS/tree/main/nextflow/example1): minimal Nextflow example for `GeneratePanelSize()`.
-- [`docs/`](https://github.com/binzhulab/SATS/tree/main/docs): static project webpage for GitHub Pages.
-- [`old_versions/`](https://github.com/binzhulab/SATS/tree/main/old_versions): older package archives.
+- [`source/`](source/): current R package source, including preprocessing functions for MAF-like mutation records.
+- [`SATS_1.0.9.tar.gz`](SATS_1.0.9.tar.gz): source archive for the current version.
+- [`User_Guide_SATS_v1.0.9.md`](User_Guide_SATS_v1.0.9.md): current user guide.
+- [`SATS-manual.pdf`](SATS-manual.pdf): function-level R manual.
+- [`Generating_L/`](Generating_L/): panel-context generation helper scripts and example panel files.
+- [`nextflow/example1/`](nextflow/example1/): minimal Nextflow example for `GeneratePanelSize()`.
+- [`docs/`](docs/): static project webpage for GitHub Pages.
+- [`old_versions/`](old_versions/): older package archives.
 
 ---
 

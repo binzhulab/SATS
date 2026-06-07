@@ -162,6 +162,31 @@ L_mat <- GenerateLMatrix(
 
 `GenerateLMatrix()` accepts panel coordinates with `Chromosome`, `Start_Position`, `End_Position` and `SEQ_ASSAY_ID`. The `ref.genome` argument supports `"hg19"` and `"hg38"`, with the corresponding Bioconductor reference genome package installed. `GeneratePanelSize()` remains available as a lower-level helper when users want to inspect panel-level context counts before expanding them to samples.
 
+### Detect de novo signatures and map them to reference signatures
+
+After the mutation-count matrix `V` and panel-context matrix `L` are matched, de novo signature discovery can be performed with a panel-opportunity-aware extraction method. In a cohort-level SATS analysis, `V` is used as the mutation-count matrix and `L` is used as the mutation-opportunity matrix. For large cohorts, samples can be grouped or pooled before de novo discovery. The resulting de novo TMB-normalized signature profile matrix, `W_hat`, is then mapped to TMB-normalized COSMIC reference signatures using `MappingSignature()`.
+
+```r
+data(SimData, package = "SATS")
+data(RefTMB, package = "SATS")
+
+# Template for a real cohort-level de novo discovery run:
+# library(signeR)
+# signeR_re <- signeR(M = V_mat, Opport = L_mat, nlim = c(1, 5))
+# W_hat <- signeR_re$Phat
+
+# Executable example using simulated de novo profiles:
+W_hat <- SimData$TrueW_TMB[, c("SBS1", "SBS4"), drop = FALSE]
+
+MappedSig <- MappingSignature(
+    W_hat = W_hat,
+    W_ref = RefTMB$TMB_SBS_v3.4
+)
+MappedSig
+```
+
+Mapped signatures can then be reviewed together with recurrence, cancer-type relevance and biological interpretation to define the reference set used for individual-tumor refitting.
+
 ### Estimate signature activity and burden
 
 ```r

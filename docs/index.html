@@ -135,72 +135,21 @@ library(SATS)</code></pre>
       <hr>
 
       <section id="usage">
-        <h2>Basic usage</h2>
-        <h3>Generate matched V and L matrices from MAF-like records</h3>
-        <pre><code>data(SimData, package = "SATS")
-
-sbs_file <- system.file(
-    "extdata", "refitting_examples", "SBS_MAF_two_samples.txt",
-    package = "SATS"
-)
-sbs_mut <- read.table(
-    sbs_file, header = TRUE, sep = "\t", quote = "",
-    stringsAsFactors = FALSE
-)
-
-clinical_sample <- data.frame(
-    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
-    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
-    stringsAsFactors = FALSE
-)
-
-V_mat <- GenerateVMatrix(
-    mutation_record = sbs_mut,
-    Class = "SBS",
-    ref.genome = "hg19"
-)
-
-L_mat <- GenerateLMatrix(
-    Panel_context = SimData$PanelEx,
-    Patient_Info = clinical_sample,
-    Class = "SBS",
-    ref.genome = "hg19"
-)
-
-if (!setequal(colnames(V_mat), colnames(L_mat)))
-    stop("V and L contain different sample IDs")
-if (!setequal(rownames(V_mat), rownames(L_mat)))
-    stop("V and L contain different mutation-context rows")
-
-L_mat <- L_mat[rownames(V_mat), colnames(V_mat), drop = FALSE]
-stopifnot(identical(colnames(V_mat), colnames(L_mat)))
-stopifnot(identical(rownames(V_mat), rownames(L_mat)))
-</code></pre>
-
-        <h3>Generate an L matrix from panel coordinates</h3>
-        <pre><code>data(SimData, package = "SATS")
-
-PatientInfo <- SimData$PatientInfo[
-    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
-]
-
-L_mat <- GenerateLMatrix(
-    Panel_context = SimData$PanelEx,
-    Patient_Info = PatientInfo,
-    Class = "SBS",
-    SBS_order = "COSMIC",
-    ref.genome = "hg19"
-)</code></pre>
-
-        <h3>Estimate signature activity and burden</h3>
-        <pre><code>data(SimData, package = "SATS")
-data(RefTMB, package = "SATS")
-
-SBS.list <- c("SBS1", "SBS2_13", "SBS4", "SBS5", "SBS6", "SBS89")
-W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
-
-H_hat <- EstimateSigActivity(V = SimData$V, L = SimData$L, W = W_star)
-SigBdn <- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</code></pre>
+        <h2>Usage and examples</h2>
+        <p>
+          The full executable workflow is maintained in the user guide to keep
+          the examples consistent and easy to validate. It covers generation of
+          matched V and L matrices, V/L alignment checks, de novo discovery with
+          <code>signeR()</code> using individual samples for small cohorts or
+          100-sample pooled profiles for very large cohorts, mapping with <code>MappingSignature()</code>,
+          refitting with <code>EstimateSigActivity()</code> and burden
+          calculation with <code>CalculateSignatureBurdens()</code>.
+        </p>
+        <p>
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">Open the user guide</a>
+          or
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">download the PDF</a>.
+        </p>
       </section>
 
       <hr>

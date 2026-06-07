@@ -94,72 +94,16 @@ library(SATS)</code></pre>
 <li><strong>Refit and estimate burdens</strong> with <code>EstimateSigActivity()</code> and <code>CalculateSignatureBurdens()</code>.</li>
 </ol>
 <hr>
-<h2 id="basic-usage">Basic Usage</h2>
-<h3 id="generate-matched-v-and-l-matrices-from-maf-like-mutation-records">Generate matched V and L matrices from MAF-like mutation records</h3>
-<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
-
-sbs_file &lt;- system.file(
-    &quot;extdata&quot;, &quot;refitting_examples&quot;, &quot;SBS_MAF_two_samples.txt&quot;,
-    package = &quot;SATS&quot;
-)
-sbs_mut &lt;- read.table(
-    sbs_file, header = TRUE, sep = &quot;\t&quot;, quote = &quot;&quot;,
-    stringsAsFactors = FALSE
-)
-
-clinical_sample &lt;- data.frame(
-    SAMPLE_ID = unique(sbs_mut$Tumor_Sample_Barcode),
-    SEQ_ASSAY_ID = SimData$PatientInfo$SEQ_ASSAY_ID[1],
-    stringsAsFactors = FALSE
-)
-
-V_mat &lt;- GenerateVMatrix(
-    mutation_record = sbs_mut,
-    Class = &quot;SBS&quot;,
-    ref.genome = &quot;hg19&quot;
-)
-
-L_mat &lt;- GenerateLMatrix(
-    Panel_context = SimData$PanelEx,
-    Patient_Info = clinical_sample,
-    Class = &quot;SBS&quot;,
-    ref.genome = &quot;hg19&quot;
-)
-
-if (!setequal(colnames(V_mat), colnames(L_mat)))
-    stop(&quot;V and L contain different sample IDs&quot;)
-if (!setequal(rownames(V_mat), rownames(L_mat)))
-    stop(&quot;V and L contain different mutation-context rows&quot;)
-
-L_mat &lt;- L_mat[rownames(V_mat), colnames(V_mat), drop = FALSE]
-stopifnot(identical(colnames(V_mat), colnames(L_mat)))
-stopifnot(identical(rownames(V_mat), rownames(L_mat)))</code></pre>
-<p><code>GenerateVMatrix()</code> accepts MAF-like mutation records with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code>, <code>Variant_Type</code>, <code>Reference_Allele</code>, <code>Tumor_Seq_Allele2</code> and <code>Tumor_Sample_Barcode</code>. <code>GenerateLMatrix()</code> accepts panel-coordinate information and a sample-panel annotation table containing <code>SAMPLE_ID</code> or <code>PATIENT_ID</code>, together with <code>SEQ_ASSAY_ID</code>. The returned <code>V</code> and <code>L</code> matrices should have identical row and column order before downstream SATS analysis.</p>
-<h3 id="generate-an-l-matrix-from-panel-coordinates">Generate an L matrix from panel coordinates</h3>
-<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
-
-PatientInfo &lt;- SimData$PatientInfo[
-    SimData$PatientInfo$SEQ_ASSAY_ID %in% unique(SimData$PanelEx$SEQ_ASSAY_ID),
-]
-
-L_mat &lt;- GenerateLMatrix(
-    Panel_context = SimData$PanelEx,
-    Patient_Info = PatientInfo,
-    Class = &quot;SBS&quot;,
-    SBS_order = &quot;COSMIC&quot;,
-    ref.genome = &quot;hg19&quot;
-)</code></pre>
-<p><code>GenerateLMatrix()</code> accepts panel coordinates with <code>Chromosome</code>, <code>Start_Position</code>, <code>End_Position</code> and <code>SEQ_ASSAY_ID</code>. The <code>ref.genome</code> argument supports <code>"hg19"</code> and <code>"hg38"</code>, with the corresponding Bioconductor reference genome package installed. <code>GeneratePanelSize()</code> remains available as a lower-level helper when users want to inspect panel-level context counts before expanding them to samples.</p>
-<h3 id="estimate-signature-activity-and-burden">Estimate signature activity and burden</h3>
-<pre><code class="language-r">data(SimData, package = &quot;SATS&quot;)
-data(RefTMB, package = &quot;SATS&quot;)
-
-SBS.list &lt;- c(&quot;SBS1&quot;, &quot;SBS2_13&quot;, &quot;SBS4&quot;, &quot;SBS5&quot;, &quot;SBS6&quot;, &quot;SBS89&quot;)
-W_star &lt;- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list])
-
-H_hat &lt;- EstimateSigActivity(V = SimData$V, L = SimData$L, W = W_star)
-SigBdn &lt;- CalculateSignatureBurdens(L = SimData$L, W = W_star, H = H_hat$H)</code></pre>
-<p>For single-tumor or small-cohort refitting, use a cancer-type-matched signature set from <code>RefTMB$SBS_refSigs</code> or <code>RefTMB$DBS_refSigs</code>.</p>
+<h2 id="usage-and-examples">Usage and Examples</h2>
+<p>The full executable workflow is maintained in the <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.md">User Guide</a> and <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.8.pdf">User Guide PDF</a>. It includes:</p>
+<ul>
+<li>generating matched <code>V</code> and <code>L</code> matrices from MAF-like mutation records and panel-coordinate tables;</li>
+<li>checking and aligning sample IDs and mutation-context rows between <code>V</code> and <code>L</code>;</li>
+<li>selecting the initial <code>signeR()</code> discovery strategy: use individual samples directly for small cohorts, for example fewer than 100 samples, and use 100-sample pooled profiles for very large cohorts, such as analyses with about 10,000 tumors;</li>
+<li>mapping de novo profiles to TMB-normalized COSMIC reference signatures with <code>MappingSignature()</code>;</li>
+<li>estimating signature activities and mutation burdens with <code>EstimateSigActivity()</code> and <code>CalculateSignatureBurdens()</code>.</li>
+</ul>
+<p>Keeping the detailed code in one guide avoids duplicated examples and makes the workflow easier to validate end to end.</p>
 <hr>
 <h2 id="repository-layout">Repository Layout</h2>
 <ul>

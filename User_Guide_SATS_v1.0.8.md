@@ -34,6 +34,8 @@ SATS was formerly available from CRAN. CRAN currently lists the package as archi
 library(SATS)
 ```
 
+The de novo signature discovery examples use `signeR`, which should be installed separately if that step is run locally. SATS can still be used for preprocessing, signature mapping, refitting and burden calculation without running `signeR`.
+
 ## Required Inputs
 
 SATS uses three main input matrices. The mutation catalogue matrix `V` has dimension `P x N`, where rows are mutation contexts and columns are samples. For SBS analysis, `P = 96`. The panel-context matrix `L` has the same dimension as `V` and gives the number of mutation opportunities per million base pairs for each mutation context and sample. The reference signature matrix `W` has dimension `P x K`, where columns are TMB-normalized reference signatures.
@@ -128,12 +130,45 @@ The resulting `L` matrix is used as the opportunity matrix for `signeR()` and as
 
 ## De Novo Signature Detection and Mapping
 
-For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. For large cohorts, samples may be grouped or pooled for computational feasibility before running de novo signature detection. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The small example below uses simulated package profiles to demonstrate the mapping step with executable code.
+For cohort-level signature detection, SATS can be used with de novo profiles estimated by `signeR` or another compatible signature extraction method. After `V_mat` and `L_mat` have been generated and aligned, choose the initial discovery strategy according to cohort size. If the sample size is small, for example fewer than 100 samples, the individual matched samples can be used directly. If the cohort is very large, such as a real-world cohort with about 10,000 tumors, every 100 matched samples can be pooled into one profile before de novo discovery. SATS stores mutation contexts in rows and samples in columns, whereas `signeR()` expects samples in rows and mutation contexts in columns; therefore, the matched SATS matrices are transposed when passed to `signeR()`. In the pooled workflow, `V_sum` and `L_sum` are derived by summing the same sample columns of `V_mat` and `L_mat`; they are not separate input files. In a full analysis, `W_hat` is the de novo TMB-normalized signature profile matrix returned by the extraction step. The examples below use simulated package matrices so that the code can be run end to end.
 
 ```r
 data(SimData, package = "SATS")
 
-W_hat <- SimData$TrueW_TMB[, c("SBS1", "SBS4"), drop = FALSE]
+V_mat <- SimData$V
+L_mat <- SimData$L
+stopifnot(identical(rownames(V_mat), rownames(L_mat)))
+stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+
+library(signeR)
+
+# Example 1: use individual matched samples directly for a small cohort.
+# If more than 100 samples are available, this example uses the first 100 only
+# to keep the demonstration compact.
+n_example <- min(100L, ncol(V_mat))
+sample_idx <- seq_len(n_example)
+V_fit <- V_mat[, sample_idx, drop = FALSE]
+L_fit <- L_mat[, sample_idx, drop = FALSE]
+stopifnot(identical(rownames(V_fit), rownames(L_fit)))
+stopifnot(identical(colnames(V_fit), colnames(L_fit)))
+
+set.seed(1)
+signeR_re_100 <- signeR(M = t(V_fit), Opport = t(L_fit), nlim = c(1, 5))
+W_hat_100 <- signeR_re_100$Phat
+stopifnot(identical(rownames(W_hat_100), rownames(V_fit)))
+
+# Example 2: pool every 100 matched samples for a very large cohort.
+# A cohort with about 10,000 tumors would yield about 100 pooled profiles.
+pool_id <- ceiling(seq_len(ncol(V_mat)) / 100)
+V_sum <- t(rowsum(t(V_mat), group = pool_id, reorder = FALSE))
+L_sum <- t(rowsum(t(L_mat), group = pool_id, reorder = FALSE))
+stopifnot(identical(rownames(V_sum), rownames(L_sum)))
+stopifnot(identical(colnames(V_sum), colnames(L_sum)))
+
+set.seed(1)
+signeR_re_pool <- signeR(M = t(V_sum), Opport = t(L_sum), nlim = c(1, 5))
+W_hat <- signeR_re_pool$Phat
+stopifnot(identical(rownames(W_hat), rownames(V_sum)))
 ```
 
 The de novo TMB-based profiles are then mapped to TMB-normalized reference signatures using `MappingSignature()`:

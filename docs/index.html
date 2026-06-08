@@ -51,6 +51,29 @@
         </div>
       </section>
 
+      <section class="software-status" id="software-status" aria-labelledby="software-status-title">
+        <h2 id="software-status-title">Current software status</h2>
+        <p>
+          The current reviewer-response version is <strong>SATS v1.0.9</strong>.
+          This update adds preprocessing utilities for constructing matched
+          mutation-count and panel-context matrices from MAF-like mutation
+          records and panel annotations (<code>GenerateVMatrix()</code> and
+          <code>GenerateLMatrix()</code>), expands the executable user guide,
+          adds regression tests for the main user-facing functions, and includes
+          a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check
+          workflow.
+        </p>
+        <p>
+          The GENIE version 13.0-public panels analyzed in the manuscript remain
+          substantially smaller than exome-scale assays. Supplementary Table 3
+          lists 56 targeted panels with assay lengths from 0.05 Mb to 9.95 Mb,
+          with a median of 1.47 Mb and no panels in the 10-50 Mb, 50-80 Mb or
+          80 Mb-WGS ranges. SATS is panel-size aware and can be adapted to
+          larger targeted panels, but WES/WGS remains preferred when available
+          for de novo discovery or low-burden rare signatures.
+        </p>
+      </section>
+
       <section class="study-overview" id="overview" aria-labelledby="overview-title">
         <h2 id="overview-title">Study and catalogue overview</h2>
         <p>

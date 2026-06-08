@@ -157,6 +157,23 @@ h1 {
   margin-bottom: 12px;
 }
 
+.software-status {
+  padding: 18px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+}
+
+.software-status h2 {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.software-status p:last-child {
+  margin-bottom: 0;
+}
+
 .study-overview {
   display: grid;
   gap: 16px;

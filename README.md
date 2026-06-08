@@ -21,6 +21,12 @@ Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for
 
 The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.
 
+## Current Software Status
+
+The current reviewer-response version is **SATS v1.0.9**. This update adds preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`), expands the executable user guide, adds regression tests for the main user-facing functions, and includes a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
+
+The GENIE version 13.0-public panels analyzed in the manuscript remain substantially smaller than exome-scale assays. Supplementary Table 3 lists 56 targeted panels with assay lengths from 0.05 Mb to 9.95 Mb, with a median of 1.47 Mb and no panels in the 10-50 Mb, 50-80 Mb or 80 Mb-WGS ranges. SATS is panel-size aware and can be adapted to larger targeted panels, but WES/WGS remains preferred when available for de novo discovery or low-burden rare signatures.
+
 ## Study and Catalogue Overview
 
 SATS was developed using AACR Project GENIE version 13.0-public, a real-world targeted-sequencing cohort spanning clinical sequencing programs in North America and Europe.

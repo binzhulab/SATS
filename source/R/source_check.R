@@ -144,7 +144,7 @@ check_Types <- function(x) {
   err   <- "ERROR: Types must be 'COSMIC' or 'signeR'"
 
   if(length(x) == 2){
-    stop("Please specifiy mutation types: available mutations types are either \"COSMIC\" or \"signeR\"")
+    stop("Please specify mutation types: available mutations types are either \"COSMIC\" or \"signeR\"")
   }
 
   if (!isString(x)) stop(err)

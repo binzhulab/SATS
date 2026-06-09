@@ -47,3 +47,28 @@ test_that("EstimateSigActivity rejects mismatched V and L sample IDs",
   )
 })
 
+test_that("EstimateSigActivity ignores counts at zero-opportunity entries",
+{
+  V_zero <- matrix(c(5, 2), nrow=2,
+                   dimnames=list(c("ctx1", "ctx2"), "sample1"))
+  L_zero <- matrix(c(0, 1), nrow=2,
+                   dimnames=list(c("ctx1", "ctx2"), "sample1"))
+  W_zero <- matrix(c(0.5, 0.5), nrow=2,
+                   dimnames=list(c("ctx1", "ctx2"), "sig1"))
+
+  V_expected <- V_zero
+  L_expected <- L_zero
+  zero_opportunity <- L_expected == 0
+  V_expected[zero_opportunity] <- 0
+  L_expected[zero_opportunity] <- 1
+
+  set.seed(2026)
+  obj_zero <- SATS::EstimateSigActivity(V_zero, L_zero, W_zero,
+                                        n.start=2, iter.max=50)
+  set.seed(2026)
+  obj_expected <- SATS::EstimateSigActivity(V_expected, L_expected, W_zero,
+                                            n.start=2, iter.max=50)
+
+  expect_equal(obj_zero$H, obj_expected$H, tolerance=1e-8)
+  expect_true(is.finite(obj_zero$loglike))
+})

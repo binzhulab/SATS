@@ -62,9 +62,13 @@
           utilities for constructing matched mutation-count and panel-context
           matrices from MAF-like mutation records and panel annotations
           (<code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code>).
-          The repository also includes an expanded executable user guide,
-          regression tests for the main user-facing functions, and a minimal
-          Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
+          It also adds explicit matrix validation with
+          <code>ValidateSATSInputs()</code>, including numeric, finite,
+          non-negative, duplicate/missing identifier and named-axis alignment
+          checks. The repository also includes an expanded executable user guide,
+          regression tests for the main user-facing functions, a Dockerized SATS
+          environment, Nextflow-compatible workflow examples and GitHub Actions
+          checks for R package and Docker-image validation.
         </p>
         <p>
           The GENIE version 13.0-public panels analyzed in the manuscript remain
@@ -122,9 +126,14 @@
           GitHub source tree is the recommended installation route for the
           current version.
         </p>
-        <pre><code>if (!requireNamespace("devtools", quietly = TRUE))
+<pre><code>if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
-devtools::install_github("binzhulab/SATS", subdir = "source", upgrade = "never")
+devtools::install_github(
+    "binzhulab/SATS",
+    ref = "software-reviewer-response-updates",
+    subdir = "source",
+    upgrade = "never"
+)
 
 library(SATS)</code></pre>
       </section>
@@ -150,7 +159,7 @@ library(SATS)</code></pre>
           <figcaption>SATS workflow for targeted sequencing-based mutational signature analysis.</figcaption>
         </figure>
         <div class="summary-list">
-          <p><strong>Prepare V and L matrices.</strong> Use <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code> to construct matched mutation-count and panel-context matrices from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations.</p>
+          <p><strong>Prepare and validate V and L matrices.</strong> Use <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code> and <code>ValidateSATSInputs()</code> to construct and validate matched mutation-count and panel-context matrices from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations.</p>
           <p><strong>Inspect panel context.</strong> Use <code>GeneratePanelSize()</code> as a lower-level helper when panel-level context counts need to be inspected before sample-level expansion.</p>
           <p><strong>Detect signatures.</strong> Estimate cohort-level profiles with <code>signeR</code> or another compatible extraction method using panel-adjusted opportunity counts.</p>
           <p><strong>Map and refit.</strong> Map de novo profiles to TMB-normalized Catalogue of Somatic Mutations in Cancer (COSMIC) reference signatures and refit signatures in individual tumors.</p>
@@ -165,7 +174,7 @@ library(SATS)</code></pre>
         <p>
           The full executable workflow is maintained in the user guide to keep
           the examples consistent and easy to validate. It covers generation of
-          matched V and L matrices, V/L alignment checks, de novo discovery with
+          matched V and L matrices, <code>ValidateSATSInputs()</code> checks, de novo discovery with
           <code>signeR()</code> using individual samples for small cohorts or
           100-sample pooled profiles for very large cohorts, mapping with <code>MappingSignature()</code>,
           refitting with <code>EstimateSigActivity()</code> and burden
@@ -183,17 +192,22 @@ library(SATS)</code></pre>
       <section id="quality">
         <h2>Software quality</h2>
         <p>
-          The repository includes unit tests, a minimal Nextflow example and a
-          Dockerfile for building an R environment with SATS and its core genomic
-          dependencies.
+          The repository includes unit tests, a Dockerized SATS environment,
+          Nextflow-compatible workflow examples and GitHub Actions workflows for
+          R package and Docker-image validation.
         </p>
         <ul>
-          <li><strong>Unit tests:</strong> cover <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
-          <li><strong>Workflow template:</strong> <code>nextflow/example1</code> calls <code>GeneratePanelSize()</code> on an input R data file.</li>
-          <li><strong>Container setup:</strong> the Dockerfile installs SATS and required R/Bioconductor dependencies.</li>
+          <li><strong>Unit tests:</strong> cover <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>ValidateSATSInputs()</code>, <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>, including malformed-input and output-shape checks.</li>
+          <li><strong>Minimal workflow:</strong> <code>nextflow/example1</code> calls <code>GeneratePanelSize()</code> on an input R data file.</li>
+          <li><strong>Expanded workflow:</strong> <code>nextflow/sats_workflow</code> validates matched <code>V</code>, <code>L</code>, <code>W</code> and <code>H</code> matrices, maps example profiles, estimates signature activities and calculates signature burdens.</li>
+          <li><strong>Container setup:</strong> the Dockerfile installs SATS and required R/Bioconductor dependencies and includes a package-data smoke test.</li>
         </ul>
         <pre><code>cd source
 Rscript -e 'testthat::test_dir("tests/testthat")'</code></pre>
+        <pre><code>docker build -t sats:1.0.10 .
+nextflow run nextflow/sats_workflow/main.nf -profile docker \
+  --outdir nextflow_results/sats_workflow \
+  --n_samples 25</code></pre>
       </section>
 
       <hr>

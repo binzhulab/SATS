@@ -2,15 +2,19 @@
 
 nextflow.enable.dsl=2
 
-params.infile  = "./data/infile.rda"
+params.infile  = "${projectDir}/data/infile.rda"
 params.outfile = "outfile.rda"
-params.script  = "./bin/run_GeneratePanelSize.R"
+params.outdir  = "nextflow_results/example1"
+params.script  = "${projectDir}/bin/run_GeneratePanelSize.R"
 
 // Define a channel for the input file
 Channel.fromPath(params.infile).set { infile_ch }
 Channel.fromPath(params.script).set { script_ch }
 
 process runAnalysis {
+  tag "${infile.simpleName}"
+  publishDir params.outdir, mode: 'copy'
+
   input: 
     path infile
     path script_file

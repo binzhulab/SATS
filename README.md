@@ -23,7 +23,7 @@ The accompanying manuscript applies SATS to 111,711 tumors from American Associa
 
 ## Current Software Status
 
-The current reviewer-response version is **SATS v1.0.10**. This update adds lightweight converters for preparing SATS inputs from simple single-sample VCF files and BED target-region files (`ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`), while retaining preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`). The repository also includes an expanded executable user guide, regression tests for the main user-facing functions, a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
+The current reviewer-response version is **SATS v1.0.10**. This update adds lightweight converters for preparing SATS inputs from simple single-sample VCF files and BED target-region files (`ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`), while retaining preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`). It also adds explicit matrix validation with `ValidateSATSInputs()`, including numeric, finite, non-negative, duplicate/missing identifier and named-axis alignment checks. The repository further includes an expanded executable user guide, regression tests for the main user-facing functions, a Dockerized SATS environment, Nextflow-compatible workflow examples and GitHub Actions checks for R package and Docker-image validation.
 
 The GENIE version 13.0-public panels analyzed in the manuscript remain substantially smaller than exome-scale assays. Supplementary Table 3 lists 56 targeted panels with assay lengths from 0.05 Mb to 9.95 Mb, with a median of 1.47 Mb and no panels in the 10-50 Mb, 50-80 Mb or 80 Mb-WGS ranges. SATS is panel-size aware and can be adapted to larger targeted panels, but WES/WGS remains preferred when available for de novo discovery or low-burden rare signatures.
 
@@ -104,7 +104,7 @@ SATS separates panel-context generation, de novo signature detection, signature 
   <img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">
 </p>
 
-1. **Prepare matched mutation-count and panel-context matrices** from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations using `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()` and `GenerateLMatrix()`.
+1. **Prepare and validate matched mutation-count and panel-context matrices** from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations using `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()`, `GenerateLMatrix()` and `ValidateSATSInputs()`.
 2. **Detect de novo signatures** using panel-adjusted opportunity counts.
 3. **Map reference signatures** with `MappingSignature()` and Catalogue of Somatic Mutations in Cancer (COSMIC) TMB-normalized signatures.
 4. **Refit and estimate burdens** with `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
@@ -117,7 +117,7 @@ The full executable workflow is maintained in the [User Guide](User_Guide_SATS_v
 
 - converting simple single-sample VCF and BED files into SATS-compatible mutation-record and panel-coordinate tables;
 - generating matched `V` and `L` matrices from MAF-like mutation records and panel-coordinate tables;
-- checking and aligning sample IDs and mutation-context rows between `V` and `L`;
+- checking and aligning sample IDs, mutation-context rows and signature names with `ValidateSATSInputs()`;
 - selecting the initial `signeR()` discovery strategy: use individual samples directly for small cohorts, for example fewer than 100 samples, and use 100-sample pooled profiles for very large cohorts, such as analyses with about 10,000 tumors;
 - mapping de novo profiles to TMB-normalized COSMIC reference signatures with `MappingSignature()`;
 - estimating signature activities and mutation burdens with `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
@@ -134,6 +134,8 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 - [`SATS-manual.pdf`](SATS-manual.pdf): function-level R manual.
 - [`Generating_L/`](Generating_L/): panel-context generation helper scripts and example panel files.
 - [`nextflow/example1/`](nextflow/example1/): minimal Nextflow example for `GeneratePanelSize()`.
+- [`nextflow/sats_workflow/`](nextflow/sats_workflow/): containerized Nextflow-compatible SATS workflow example for mapping, activity estimation and burden calculation.
+- [`nextflow.config`](nextflow.config): shared Nextflow configuration with a Docker profile.
 - [`docs/`](docs/): static project webpage for GitHub Pages.
 - [`old_versions/`](old_versions/): older package archives.
 
@@ -141,7 +143,7 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 
 ## Software Quality
 
-Unit tests are provided in `source/tests/testthat/` for the main user-facing functions, including `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()`, `GenerateLMatrix()`, `GeneratePanelSize()`, `CalculateSignatureBurdens()` and `EstimateSigActivity()`. The tests use simulated package data and small single-sample VCF, BED and MAF-like mutation-record examples.
+Unit tests are provided in `source/tests/testthat/` for the main user-facing functions, including `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()`, `GenerateLMatrix()`, `GeneratePanelSize()`, `ValidateSATSInputs()`, `CalculateSignatureBurdens()` and `EstimateSigActivity()`. The tests use simulated package data and small single-sample VCF, BED and MAF-like mutation-record examples, and include malformed-input tests for negative values, non-numeric values, duplicated identifiers, missing identifiers and mismatched named axes.
 
 Run tests locally:
 
@@ -156,7 +158,41 @@ Run a local package check:
 R CMD check source --no-manual
 ```
 
-The repository also includes a GitHub Actions workflow, `.github/workflows/R-CMD-check.yaml`, that runs `R CMD check` on Linux, macOS and Windows. A Dockerfile is provided for building an R environment with SATS and its core genomic dependencies installed.
+The repository also includes GitHub Actions workflows for R package checks and Docker-image validation. `.github/workflows/R-CMD-check.yaml` runs `R CMD check` on Linux, macOS and Windows, and `.github/workflows/docker-build.yaml` builds the SATS Docker image and runs a small package-data smoke test.
+
+---
+
+## Containerized Workflow
+
+The Dockerfile builds an R environment with SATS and its core genomic dependencies installed:
+
+```bash
+docker build -t sats:1.0.10 .
+```
+
+Run a SATS package smoke test inside the container:
+
+```bash
+docker run --rm sats:1.0.10 Rscript -e 'library(SATS); data(SimData, package="SATS"); stopifnot(is.matrix(SimData$V))'
+```
+
+The repository includes a shared `nextflow.config` with a Docker profile. The minimal Nextflow example runs `GeneratePanelSize()`:
+
+```bash
+nextflow run nextflow/example1/main.nf -profile docker \
+  --outdir nextflow_results/example1 \
+  --outfile outfile.rda
+```
+
+The expanded SATS workflow example checks bundled `V` and `L` matrices, maps example profiles to reference signatures, estimates signature activities and calculates signature burdens:
+
+```bash
+nextflow run nextflow/sats_workflow/main.nf -profile docker \
+  --outdir nextflow_results/sats_workflow \
+  --n_samples 25
+```
+
+Expected outputs include `sats_mapping_results.csv`, `sats_activity_matrix.csv`, `sats_signature_burdens.csv`, `sats_workflow_outputs.rds` and `sats_workflow_summary.txt`. These examples are intended as reproducible workflow templates for integration into standardized workflow systems; they are not presented as full clinical production pipelines or nf-core-compliant workflows.
 
 ---
 
@@ -164,7 +200,7 @@ The repository also includes a GitHub Actions workflow, `.github/workflows/R-CMD
 
 SATS accepts either summarized mutation-count and panel-context matrices, MAF-like mutation-record tables with panel-coordinate data frames, or simple single-sample VCF/BED input files that are converted with `ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`. The VCF/BED converters are intended for standard targeted-panel input preparation. Complex VCF normalization, multi-sample genotype parsing, tumor-normal genotype interpretation, phasing and representation of complex events should be handled upstream when needed.
 
-The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and reference signature matrix `W` must match. For SBS analyses, the `SBS_order` argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by `MappingSignature(COSMICv=...)`, with `"v3.4"` as the current default.
+The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and reference signature matrix `W` must match. `ValidateSATSInputs()` can be used before analysis to check object type, numeric validity, finite values, non-negative values, integer-like mutation counts in `V`, duplicate or missing identifiers, mutation-context alignment, sample-ID alignment and signature-name alignment. If compatible named axes are present in different orders, SATS reorders them internally; if identifiers are absent from one paired object, duplicated or inconsistent, SATS stops with an informative error. For SBS analyses, the `SBS_order` argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by `MappingSignature(COSMICv=...)`, with `"v3.4"` as the current default.
 
 ---
 

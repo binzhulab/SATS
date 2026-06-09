@@ -1,44 +1,85 @@
 # Functions to check for errors in the input arguments
 
+ValidateSATSInputs <- function(V=NULL, L=NULL, W=NULL, H=NULL) {
+
+  ret <- validate_sats_inputs(V=V, L=L, W=W, H=H)
+  ret[!vapply(ret, is.null, logical(1))]
+}
+
 check_L_W_H <- function(L, W, H) {
 
-  check_mat_df(L, "L")
-  check_mat_df(W, "W")
-  check_mat_df(H, "H")
-  if (nrow(H) != ncol(W)) stop("ERROR: nrow(H) != ncol(W)")
-  if (ncol(L) != ncol(H)) stop("ERROR: ncol(H) != ncol(L)")
-  if (nrow(L) != nrow(W)) stop("ERROR: nrow(L) != nrow(W)")
+  validate_sats_inputs(L=L, W=W, H=H)
 
   NULL
 }
 
 align_L_W_H <- function(L, W, H) {
 
-  L <- align_named_axis(H, L, "H", "L", "columns", "columns", "sample IDs")
-  W <- align_named_axis(H, W, "H", "W", "rows", "columns", "signature names")
-  W <- align_named_axis(L, W, "L", "W", "rows", "rows", "mutation context names")
-
-  list(L=L, W=W, H=H)
+  validate_sats_inputs(L=L, W=W, H=H)
 }
 
 check_L_W_V <- function(L, W, V) {
 
-  check_mat_df(L, "L")
-  check_mat_df(W, "W")
-  check_mat_df(V, "V")
-  if (any(dim(L) != dim(V))) stop("ERROR: dim(L) != dim(V)")
-  if (nrow(L) != nrow(W)) stop("ERROR: nrow(L) != nrow(W)")
+  validate_sats_inputs(V=V, L=L, W=W)
 
   NULL
 }
 
 align_L_W_V <- function(L, W, V) {
 
-  L <- align_named_axis(V, L, "V", "L", "rows", "rows", "mutation context names")
-  W <- align_named_axis(V, W, "V", "W", "rows", "rows", "mutation context names")
-  L <- align_named_axis(V, L, "V", "L", "columns", "columns", "sample IDs")
+  validate_sats_inputs(V=V, L=L, W=W)
+}
 
-  list(L=L, W=W, V=V)
+validate_sats_inputs <- function(V=NULL, L=NULL, W=NULL, H=NULL) {
+
+  if (is.null(V) && is.null(L) && is.null(W) && is.null(H)) {
+    stop("ERROR: at least one SATS input matrix must be provided")
+  }
+
+  if (!is.null(V)) check_sats_numeric_matrix(V, "V", integer_like=TRUE)
+  if (!is.null(L)) check_sats_numeric_matrix(L, "L")
+  if (!is.null(W)) check_sats_numeric_matrix(W, "W")
+  if (!is.null(H)) check_sats_numeric_matrix(H, "H")
+
+  if (!is.null(V) && !is.null(L)) {
+    L <- align_named_axis(V, L, "V", "L", "rows", "rows",
+                          "mutation context names")
+    L <- align_named_axis(V, L, "V", "L", "columns", "columns",
+                          "sample IDs")
+    if (any(dim(L) != dim(V))) stop("ERROR: dim(L) != dim(V)")
+  }
+
+  if (!is.null(V) && !is.null(W)) {
+    W <- align_named_axis(V, W, "V", "W", "rows", "rows",
+                          "mutation context names")
+  }
+
+  if (is.null(V) && !is.null(L) && !is.null(W)) {
+    W <- align_named_axis(L, W, "L", "W", "rows", "rows",
+                          "mutation context names")
+  }
+
+  if (!is.null(H) && !is.null(L)) {
+    L <- align_named_axis(H, L, "H", "L", "columns", "columns",
+                          "sample IDs")
+  }
+
+  if (!is.null(H) && !is.null(W)) {
+    W <- align_named_axis(H, W, "H", "W", "rows", "columns",
+                          "signature names")
+  }
+
+  if (!is.null(L) && !is.null(W) && nrow(L) != nrow(W)) {
+    stop("ERROR: nrow(L) != nrow(W)")
+  }
+  if (!is.null(W) && !is.null(H) && nrow(H) != ncol(W)) {
+    stop("ERROR: nrow(H) != ncol(W)")
+  }
+  if (!is.null(L) && !is.null(H) && ncol(L) != ncol(H)) {
+    stop("ERROR: ncol(H) != ncol(L)")
+  }
+
+  list(V=V, L=L, W=W, H=H)
 }
 
 align_named_axis <- function(reference, target, reference_name, target_name,
@@ -47,14 +88,20 @@ align_named_axis <- function(reference, target, reference_name, target_name,
   reference_names <- get_axis_names(reference, reference_axis)
   target_names    <- get_axis_names(target, target_axis)
 
-  if (is.null(reference_names) || is.null(target_names)) return(target)
+  if (is.null(reference_names) && is.null(target_names)) return(target)
+  if (is.null(reference_names)) {
+    stop(paste0("ERROR: missing ", label, " in ", reference_name,
+                "; named alignment requires both ", reference_name, " and ",
+                target_name, " to contain ", label))
+  }
+  if (is.null(target_names)) {
+    stop(paste0("ERROR: missing ", label, " in ", target_name,
+                "; named alignment requires both ", reference_name, " and ",
+                target_name, " to contain ", label))
+  }
 
-  if (anyDuplicated(reference_names)) {
-    stop(paste0("ERROR: duplicate ", label, " found in ", reference_name))
-  }
-  if (anyDuplicated(target_names)) {
-    stop(paste0("ERROR: duplicate ", label, " found in ", target_name))
-  }
+  check_axis_names(reference_names, reference_name, label)
+  check_axis_names(target_names, target_name, label)
 
   missing <- setdiff(reference_names, target_names)
   extra   <- setdiff(target_names, reference_names)
@@ -75,6 +122,18 @@ align_named_axis <- function(reference, target, reference_name, target_name,
   if (identical(reference_names, target_names)) return(target)
 
   reorder_axis(target, target_axis, reference_names)
+}
+
+check_axis_names <- function(x, object_name, label) {
+
+  if (any(is.na(x)) || any(x == "")) {
+    stop(paste0("ERROR: missing ", label, " found in ", object_name))
+  }
+  if (anyDuplicated(x)) {
+    stop(paste0("ERROR: duplicate ", label, " found in ", object_name))
+  }
+
+  NULL
 }
 
 get_axis_names <- function(x, axis) {
@@ -109,9 +168,90 @@ check_mat_df <- function(x, nm, check.finite=1) {
   if (!nrow(x)) stop(paste0("ERROR: ", nm, " has no rows"))
   if (!ncol(x)) stop(paste0("ERROR: ", nm, " has no columns"))
   if (check.finite) {
-    if (any(!is.finite(as.matrix(x)))) {
+    xmat <- as.matrix(x)
+    if (is.numeric(xmat) && any(!is.finite(xmat))) {
       stop(paste0("ERROR: ", nm, " contains non-finite values"))
     }
+  }
+
+  NULL
+}
+
+check_sats_numeric_matrix <- function(x, nm, integer_like=FALSE) {
+
+  check_mat_df(x, nm, check.finite=0)
+  if (is.data.frame(x)) {
+    is_num <- vapply(x, is.numeric, logical(1))
+    if (!all(is_num)) {
+      stop(paste0("ERROR: ", nm, " must contain numeric values"))
+    }
+  }
+  xmat <- as.matrix(x)
+
+  if (!is.numeric(xmat)) {
+    stop(paste0("ERROR: ", nm, " must contain numeric values"))
+  }
+  if (any(!is.finite(xmat))) {
+    stop(paste0("ERROR: ", nm, " contains non-finite values"))
+  }
+  if (any(xmat < 0)) {
+    stop(paste0("ERROR: ", nm, " must contain non-negative values"))
+  }
+  if (integer_like && any(abs(xmat - round(xmat)) > sqrt(.Machine$double.eps))) {
+    stop(paste0("ERROR: ", nm, " must contain integer-like mutation counts"))
+  }
+
+  check_axis_if_present(rownames(x), nm, "mutation context names")
+  check_axis_if_present(colnames(x), nm, "sample or signature names")
+
+  NULL
+}
+
+check_axis_if_present <- function(x, object_name, label) {
+
+  if (is.null(x)) return(NULL)
+  check_axis_names(x, object_name, label)
+}
+
+check_estSigActivity_output <- function(ret, V, W) {
+
+  if (!is.list(ret)) stop("ERROR: EstimateSigActivity output must be a list")
+  req <- c("H", "loglike", "converged")
+  miss <- setdiff(req, names(ret))
+  if (length(miss)) {
+    stop(paste0("ERROR: EstimateSigActivity output is missing ",
+                format_name_list(miss)))
+  }
+
+  check_sats_numeric_matrix(ret$H, "H output")
+  if (nrow(ret$H) != ncol(W)) stop("ERROR: nrow(H output) != ncol(W)")
+  if (ncol(ret$H) != ncol(V)) stop("ERROR: ncol(H output) != ncol(V)")
+  if (length(ret$loglike) != 1 || !is.finite(ret$loglike)) {
+    stop("ERROR: loglike output must be a single finite value")
+  }
+  if (length(ret$converged) != 1 || is.na(ret$converged)) {
+    stop("ERROR: converged output must be a single non-missing value")
+  }
+  if (!is.null(colnames(V)) && !identical(colnames(ret$H), colnames(V))) {
+    stop("ERROR: H output sample IDs do not match V")
+  }
+  if (!is.null(colnames(W)) && !identical(rownames(ret$H), colnames(W))) {
+    stop("ERROR: H output signature names do not match W")
+  }
+
+  NULL
+}
+
+check_sig_burdens_output <- function(ret, W, H) {
+
+  check_sats_numeric_matrix(ret, "signature burden output")
+  if (nrow(ret) != ncol(W)) stop("ERROR: nrow(signature burden output) != ncol(W)")
+  if (ncol(ret) != ncol(H)) stop("ERROR: ncol(signature burden output) != ncol(H)")
+  if (!is.null(colnames(H)) && !identical(colnames(ret), colnames(H))) {
+    stop("ERROR: signature burden output sample IDs do not match H")
+  }
+  if (!is.null(colnames(W)) && !identical(rownames(ret), colnames(W))) {
+    stop("ERROR: signature burden output signature names do not match W")
   }
 
   NULL
@@ -140,11 +280,11 @@ isString <- function(x) {
 
 check_Types <- function(x) {
 
-  valid <- c("COSMIC", "signeR")
+  valid <- SATS_SUPPORTED_SBS_ORDERS
   err   <- "ERROR: Types must be 'COSMIC' or 'signeR'"
 
   if(length(x) == 2){
-    stop("Please specify mutation types: available mutations types are either \"COSMIC\" or \"signeR\"")
+    stop("Please specify mutation types: available mutation types are either \"COSMIC\" or \"signeR\"")
   }
 
   if (!isString(x)) stop(err)
@@ -155,7 +295,7 @@ check_Types <- function(x) {
 
 check_Class <- function(x) {
 
-  valid <- c("SBS", "DBS")
+  valid <- SATS_SUPPORTED_CLASSES
   err   <- "ERROR: Class must be 'SBS' or 'DBS'"
 
   if(length(x) != 1) stop(err)
@@ -168,7 +308,7 @@ check_Class <- function(x) {
 
 check_COSMICv <- function(x) {
 
-  valid <- c("v3.2", "v3.4")
+  valid <- SATS_SUPPORTED_COSMIC_VERSIONS
   err   <- "ERROR: COSMICv must be 'v3.2' or 'v3.4'"
 
   if (!isString(x)) stop(err)
@@ -179,7 +319,7 @@ check_COSMICv <- function(x) {
 
 check_ref.genome <- function(x) {
 
-  valid <- c("hg19", "hg38")
+  valid <- SATS_SUPPORTED_GENOMES
   err   <- "ERROR: ref.genome must be 'hg19' or 'hg38'"
 
   if (!isString(x)) stop(err)

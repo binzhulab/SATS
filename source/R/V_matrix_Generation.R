@@ -22,6 +22,9 @@ GenerateVMatrix <- function(mutation_record, Class = c("SBS", "DBS"),
 
 GenerateVMatrix_SBS <- function(mutation_record, ref.genome, mutation_order) {
 
+  # SBS records are represented in pyrimidine-centered SBS96 convention. Records
+  # whose reference allele is A or G are reverse-complemented before category
+  # assignment so generated V rows match the selected mutation_order.
   x <- prepare_mutation_record(mutation_record)
   x <- x[x$Variant_Type == "SNP", , drop = FALSE]
   if (!nrow(x)) stop("ERROR: mutation_record contains no SNP records")
@@ -32,8 +35,8 @@ GenerateVMatrix_SBS <- function(mutation_record, ref.genome, mutation_order) {
            x$Start_Position > 1L &
            nchar(x$Reference_Allele) == 1L &
            nchar(x$Tumor_Seq_Allele2) == 1L &
-           x$Reference_Allele %in% c("A", "C", "G", "T") &
-           x$Tumor_Seq_Allele2 %in% c("A", "C", "G", "T") &
+           x$Reference_Allele %in% SATS_BASES &
+           x$Tumor_Seq_Allele2 %in% SATS_BASES &
            x$Reference_Allele != x$Tumor_Seq_Allele2
 
   x <- drop_invalid_mutations(x, valid, "SBS")
@@ -73,6 +76,9 @@ GenerateVMatrix_SBS <- function(mutation_record, ref.genome, mutation_order) {
 
 GenerateVMatrix_DBS <- function(mutation_record, ref.genome, mutation_order) {
 
+  # DBS records are canonicalized to COSMIC DBS78 orientation. Non-canonical
+  # reference dinucleotides and palindromic categories are reverse-complemented
+  # before the count matrix is assembled.
   x <- prepare_mutation_record(mutation_record)
   x <- x[x$Variant_Type == "DNP", , drop = FALSE]
   if (!nrow(x)) stop("ERROR: mutation_record contains no DNP records")
@@ -131,7 +137,7 @@ GenerateVMatrix_DBS <- function(mutation_record, ref.genome, mutation_order) {
 
   ref_di_10 <- ref_di
   mut_di_10 <- mut_di
-  included <- c("AC", "AT", "CC", "CG", "CT", "GC", "TA", "TC", "TG", "TT")
+  included <- SATS_DBS_INCLUDED_DINUCLEOTIDES
 
   flip_idx <- !ref_di %in% included
   if (any(flip_idx)) {
@@ -139,10 +145,10 @@ GenerateVMatrix_DBS <- function(mutation_record, ref.genome, mutation_order) {
     mut_di_10[flip_idx] <- as.character(reverseComplement(DNAStringSet(mut_di_10[flip_idx])))
   }
 
-  flip_idx_at <- ref_di %in% "AT" & !mut_di_10 %in% c("CA", "CC", "CG", "GA", "GC", "TA")
-  flip_idx_ta <- ref_di %in% "TA" & !mut_di_10 %in% c("AT", "CG", "CT", "GC", "GG", "GT")
-  flip_idx_cg <- ref_di %in% "CG" & !mut_di_10 %in% c("AT", "GC", "GT", "TA", "TC", "TT")
-  flip_idx_gc <- ref_di %in% "GC" & !mut_di_10 %in% c("AA", "AG", "AT", "CA", "CG", "TA")
+  flip_idx_at <- ref_di %in% "AT" & !mut_di_10 %in% SATS_DBS_PALINDROME_MUTATIONS$AT
+  flip_idx_ta <- ref_di %in% "TA" & !mut_di_10 %in% SATS_DBS_PALINDROME_MUTATIONS$TA
+  flip_idx_cg <- ref_di %in% "CG" & !mut_di_10 %in% SATS_DBS_PALINDROME_MUTATIONS$CG
+  flip_idx_gc <- ref_di %in% "GC" & !mut_di_10 %in% SATS_DBS_PALINDROME_MUTATIONS$GC
 
   flip_palindrome <- flip_idx_at | flip_idx_ta | flip_idx_cg | flip_idx_gc
   if (any(flip_palindrome)) {

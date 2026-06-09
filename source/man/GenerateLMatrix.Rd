@@ -1,9 +1,10 @@
 
 \name{GenerateLMatrix}
 \alias{GenerateLMatrix}
-\title{Generate an L Matrix}
+\title{Generate a sample-level panel-context matrix}
 \description{
-   Generation of the L matrix.
+   Generate the sample-level \code{L} matrix from panel-context or
+   panel-coordinate information and sample-panel annotations.
 }
 \usage{ GenerateLMatrix(Panel_context, Patient_Info, Class = c("SBS", "DBS"),
           SBS_order = c("COSMIC", "signeR"), ref.genome = "hg19")
@@ -17,14 +18,14 @@
     \code{SEQ_ASSAY_ID} and either \code{PATIENT_ID} or \code{SAMPLE_ID}.}
     \item{Class}{A character string specifying the mutation class. Used when
     \code{Panel_context} is a panel-coordinate data frame.}
-    \item{SBS_order}{Mutation type order, either \code{"COSMIC"} or
+    \item{SBS_order}{Mutation-type order, either \code{"COSMIC"} or
     \code{"signeR"}. Used for SBS analyses when \code{Panel_context} is a
     panel-coordinate data frame.}
     \item{ref.genome}{The reference genome, either \code{"hg19"} or
     \code{"hg38"}. Used when \code{Panel_context} is a panel-coordinate data
     frame.}
 }
-\details{The GenerateLMatrix() function links each sample to its specific
+\details{\code{GenerateLMatrix()} links each sample to its specific
 sequencing assay, identified by \code{SEQ_ASSAY_ID}. For the standard
 preprocessing workflow, provide panel-coordinate information as the first
 argument and sample-panel annotation as the second argument. The function then
@@ -41,7 +42,8 @@ panel-coordinate tables with \code{\link{ReadBEDAsPanelInfo}}.
 }
 
 \value{ 
- A data frame (L matrix) of 96 by N, where N is the number of tumors.
+ A data frame (L matrix) of P by N, where P is the number of mutation
+ channels (96 for SBS or 78 for DBS) and N is the number of tumors.
 }
 %\references{}
 \author{

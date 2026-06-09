@@ -1,16 +1,18 @@
 
 MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.repeats=80, COSMICv="v3.4"){
   ## Description
-  # This function finds a subset of TMB-based catalog SBS signatures whose linear combination approximate 
-  # {\it de novo} SBS signatures detected by signeR
+  # This function selects TMB-normalized reference SBS signatures whose linear
+  # combinations approximate de novo SBS profiles detected from targeted-panel
+  # data. Reference signatures are retained only when their coefficients exceed
+  # cutoff.I2 in at least min.repeats repeated pNNLS fits.
   
   ## Arguments
   # W_hat: de novo signatures from signeR 
   # W_ref: TMB-based catalog signatures (SimData$W_TMB)
   
   # Check for errors with inputs
-  check_mat_df(W_hat, "W_hat")
-  if (!is.null(W_ref)) check_mat_df(W_ref, "W_ref")
+  check_sats_numeric_matrix(W_hat, "W_hat")
+  if (!is.null(W_ref)) check_sats_numeric_matrix(W_ref, "W_ref")
   check_number(niter, "niter", min=1)
   check_number(cutoff.I2, "cutoff.I2", pos=TRUE)
   check_number(min.repeats, "min.repeats", min=1, max=niter)
@@ -20,26 +22,27 @@ MappingSignature <- function(W_hat, W_ref=NULL, niter=100, cutoff.I2=0.1, min.re
   if (is.null(W_ref)) W_ref <- get_W_ref(COSMICv)
 
   ## Value
-  # selected TMB-based catalog signatures with coefficient I^2 greater than cutoff.I2 
-  #   in more than min.repeats repeats
+  # Selected reference signatures and the number of repeated fits in which each
+  # coefficient exceeded cutoff.I2. With defaults, a retained signature must
+  # contribute more than 10% to a de novo profile in at least 80 of 100 repeats.
   
   signeR_W_norm <- apply(as.matrix(W_hat), 2, function(x) x/sum(x))
   r <- ncol(signeR_W_norm)
   n_ref <- dim(W_ref)[2]
   
-  ## glment X and y
+  ## Construct block-diagonal design matrix for pNNLS mapping.
   X <- kronecker(diag(1, r), as.matrix(W_ref))
   y <- as.vector(signeR_W_norm)
   
   reg.sig.all <- NULL
   sig_found   <- NULL
-  singeR      <- NULL
+  de_novo_signature <- NULL
   for(rep in 1:niter){
     cvfit <- cv.glmnet(X, y, lower.limits = 0, intercept = FALSE) 
     out   <- coef(cvfit, s = "lambda.min")
     dimnames(out)[[1]][-1] <- rep(colnames(W_ref),r) 
-    reg <- data.frame(SBS = rownames(out)[-1], coeff = out[-1,1], singeR = rep(1:r, each = n_ref))
-    #reg.sig <- reg %>% arrange(singeR, desc(coeff)) %>% group_by(singeR) %>% mutate(cum_sum = cumsum(coeff)) %>% filter(coeff > cutoff.I2)
+    reg <- data.frame(SBS = rownames(out)[-1], coeff = out[-1,1],
+                      de_novo_signature = rep(1:r, each = n_ref))
     reg.sig <- filt1(reg, cutoff.I2)
 
     if(dim(reg.sig)[1]!=0){
@@ -61,9 +64,9 @@ filt1 <- function(reg, cutoff.I2) {
   ret   <- as.data.frame(reg, stringsAsFactors=FALSE)
   ord   <- order(ret[, "coeff", drop=TRUE], decreasing=TRUE)
   ret   <- ret[ord, , drop=FALSE]
-  ord   <- order(ret[, "singeR", drop=TRUE], decreasing=FALSE)
+  ord   <- order(ret[, "de_novo_signature", drop=TRUE], decreasing=FALSE)
   ret   <- ret[ord, , drop=FALSE]
-  grps  <- ret[, "singeR", drop=TRUE]
+  grps  <- ret[, "de_novo_signature", drop=TRUE]
   ugrps <- unique(grps)
   ngrps <- length(ugrps)
   ret[, "cum_sum"] <- NA

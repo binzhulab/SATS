@@ -11,17 +11,13 @@
 
 
 #define binary char
-#define NMF_STOPCONV 40
-#define NMF_CHECKINTERVAL 10
-#define NMF_MAXITER 2000
 #define CHECK_MEM(obj) if (obj == NULL) {Rprintf("ERROR: allocating memory \n"); error("1");}
+
+/* Numeric sentinels used by the EM likelihood code. NUMERICZERO prevents
+   log(0), and the large negative values mark failed or missing likelihoods. */
 #define NUMERICZERO 1e-200
-#define LARGEDOUBLE 1.0e200
-#define MINUSINFINITY -1.0e200
 #define DOUBLE_MISS -9999.0e200
 #define DOUBLE_MISS_TEST -9999.0e150
-#define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
-#define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )
 
 
 #define IARG_N_SAMP 0
@@ -41,7 +37,7 @@ struct sal_struct {
   double **V;         /* NMUT X NSAMP */
   double **L;         /* NMUT X NSAMP */
   double **W;         /* NMUT X NSIG */
-  double **tW;        /* transose(W) */
+  double **tW;        /* transpose(W) */
   double **tWL;       /* transpose(W) %*% L  NSIG X NSAMP */
   double **H;         /* NSIG X NSAMP */
   double *ret_H;
@@ -512,7 +508,6 @@ void C_call_salmon(int *iargs, double *dargs, double *V, double *L, double *W, d
 
   return;
 }
-
 
 
 

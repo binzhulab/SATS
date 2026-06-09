@@ -50,7 +50,7 @@ The de novo signature discovery examples use `signeR`, which should be installed
 
 SATS uses three main input matrices. The mutation catalogue matrix `V` has dimension `P x N`, where rows are mutation contexts and columns are samples. For SBS analysis, `P = 96`. The panel-context matrix `L` has the same dimension as `V` and gives the number of mutation opportunities per million base pairs for each mutation context and sample. The reference signature matrix `W` has dimension `P x K`, where columns are TMB-normalized reference signatures.
 
-The row order of `V`, `L` and `W` must match. For SBS analyses, SATS supports the COSMIC-style 96-channel order and the `signeR` order. The `SBS_order` argument in `GeneratePanelSize()` controls mutation-type ordering only; it does not select the COSMIC reference-signature version. The reference-signature version used by `MappingSignature()` is controlled separately by `COSMICv`, with `"v3.4"` as the current default.
+The row order of `V`, `L` and `W` must match. `ValidateSATSInputs()` can be used before analysis to check object type, numeric validity, finite values, non-negative values, integer-like mutation counts in `V`, duplicate or missing identifiers, mutation-context alignment, sample-ID alignment and signature-name alignment. If compatible named axes are present in different orders, SATS reorders them internally; if identifiers are absent from one paired object, duplicated or inconsistent, SATS stops with an informative error. For SBS analyses, SATS supports the COSMIC-style 96-channel order and the `signeR` order. The `SBS_order` argument in `GeneratePanelSize()` controls mutation-type ordering only; it does not select the COSMIC reference-signature version. The reference-signature version used by `MappingSignature()` is controlled separately by `COSMICv`, with `"v3.4"` as the current default.
 
 The main workflow below starts from matched `V` and `L` matrices. If those matrices are already available, users can proceed directly to de novo signature detection, mapping, activity estimation and burden calculation. If users instead start from lower-level MAF-like mutation records and panel-coordinate information, `GenerateVMatrix()` and `GenerateLMatrix()` can first be used to construct matched `V` and `L` matrices. If users start from simple single-sample Variant Call Format (VCF) and Browser Extensible Data (BED) files, `ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()` can first convert those files into SATS-compatible tables. These preprocessing scenarios are described after the main workflow.
 
@@ -71,7 +71,7 @@ The main analysis workflow starts from matched `V` and `L` matrices and proceeds
 
 ### Prepare Matched V and L Matrices
 
-The workflow begins by assigning the simulated mutation-count matrix and panel-context matrix to `V_mat` and `L_mat`, then verifying that their mutation-context rows and sample columns are aligned.
+The workflow begins by assigning the simulated mutation-count matrix and panel-context matrix to `V_mat` and `L_mat`, then validating and aligning their mutation-context rows and sample columns.
 
 ```r
 data(SimData, package = "SATS")
@@ -81,8 +81,9 @@ L_mat <- SimData$L
 dim(V_mat)
 dim(L_mat)
 
-stopifnot(identical(rownames(V_mat), rownames(L_mat)))
-stopifnot(identical(colnames(V_mat), colnames(L_mat)))
+validated <- ValidateSATSInputs(V = V_mat, L = L_mat)
+V_mat <- validated$V
+L_mat <- validated$L
 ```
 
 In this main workflow, `L_mat` is the generated panel-context matrix used as the opportunity matrix for `signeR()` and as the panel-context matrix for `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
@@ -152,6 +153,11 @@ if (!all(SBS.list %in% colnames(RefTMB$TMB_SBS_v3.4)))
     stop("At least one mapped signature is absent from the reference matrix.")
 
 W_star <- as.matrix(RefTMB$TMB_SBS_v3.4[, SBS.list, drop = FALSE])
+
+validated <- ValidateSATSInputs(V = V_mat, L = L_mat, W = W_star)
+V_mat <- validated$V
+L_mat <- validated$L
+W_star <- validated$W
 
 H_hat <- EstimateSigActivity(
     V = V_mat,
@@ -295,18 +301,44 @@ SigBdn <- CalculateSignatureBurdens(L = L1, W = W_star, H = H_hat$H)
 
 This workflow supports targeted-sequencing refitting when the set of signatures is known from a cancer-type-matched catalogue or from a prior cohort-level SATS analysis.
 
-## Tests, Workflow Example and Docker
+## Tests and Containerized Workflows
 
-Unit tests are provided in `source/tests/testthat/` for `CalculateSignatureBurdens()`, `EstimateSigActivity()`, `GeneratePanelSize()`, `GenerateVMatrix()`, `GenerateLMatrix()`, `ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`. To run them locally:
+Unit tests are provided in `source/tests/testthat/` for `CalculateSignatureBurdens()`, `EstimateSigActivity()`, `ValidateSATSInputs()`, `GeneratePanelSize()`, `GenerateVMatrix()`, `GenerateLMatrix()`, `ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`. These tests include malformed-input checks for negative values, non-numeric values, duplicated identifiers, missing identifiers and mismatched named axes. To run them locally:
 
 ```bash
 cd source
 Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
 
-The repository includes a minimal Nextflow example in `nextflow/example1/`. The example calls `GeneratePanelSize()` on an input `.rda` file containing `genomic_information` and optional `Class`, `SBS_order` and `ref.genome` objects. It is intended as a template for incorporating SATS panel-context generation into standardized workflow systems.
+A Dockerfile is provided for building an R environment with SATS and its core dependencies installed:
 
-A Dockerfile is also provided for building an R environment with SATS and its core dependencies installed.
+```bash
+docker build -t sats:1.0.10 .
+```
+
+The container can be used for a simple SATS smoke test:
+
+```bash
+docker run --rm sats:1.0.10 Rscript -e 'library(SATS); data(SimData, package="SATS"); stopifnot(is.matrix(SimData$V))'
+```
+
+The repository includes a shared `nextflow.config` with a Docker profile. The minimal Nextflow example in `nextflow/example1/` calls `GeneratePanelSize()` on an input `.rda` file containing `genomic_information` and optional `Class`, `SBS_order` and `ref.genome` objects:
+
+```bash
+nextflow run nextflow/example1/main.nf -profile docker \
+  --outdir nextflow_results/example1 \
+  --outfile outfile.rda
+```
+
+The expanded workflow in `nextflow/sats_workflow/` runs a compact SATS workflow from bundled package data. It validates matched `V`, `L`, `W` and `H` matrices with `ValidateSATSInputs()`, maps example profiles with `MappingSignature()`, estimates signature activities with `EstimateSigActivity()` and calculates signature burdens with `CalculateSignatureBurdens()`:
+
+```bash
+nextflow run nextflow/sats_workflow/main.nf -profile docker \
+  --outdir nextflow_results/sats_workflow \
+  --n_samples 25
+```
+
+Expected outputs include `sats_mapping_results.csv`, `sats_activity_matrix.csv`, `sats_signature_burdens.csv`, `sats_workflow_outputs.rds` and `sats_workflow_summary.txt`. The example is intended as a reproducible workflow template. It does not run full de novo signature extraction and is not presented as a full clinical production pipeline or nf-core-compliant pipeline.
 
 ## Citation and Web Resources
 

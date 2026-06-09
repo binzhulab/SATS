@@ -5,9 +5,6 @@ CalculateSignatureBurdens <- function(L, W, H) {
   W <- aligned$W
   H <- aligned$H
 
-  # Check for errors with inputs
-  check_L_W_H(L, W, H) 
-
   N   <- ncol(H)
 
   # Initialize return matrix
@@ -15,6 +12,7 @@ CalculateSignatureBurdens <- function(L, W, H) {
 
   if (!is.matrix(L)) L <- as.matrix(L)
   if (!is.matrix(W)) W <- as.matrix(W)
+  H_input <- H
   H <- t(as.matrix(H))
 
   for(n in 1:N){
@@ -22,6 +20,7 @@ CalculateSignatureBurdens <- function(L, W, H) {
     ret[, n] <- colSums(tmp*W)
   }
 
+  check_sig_burdens_output(ret, W, H_input)
   ret
 
 }
@@ -54,22 +53,22 @@ EstimateSigActivity <- function(V, L, W, n.start=50, iter.max=5000, eps=1e-5) {
   W <- aligned$W
   V <- aligned$V
 
-  # Check for errors with inputs
-  check_L_W_V(L, W, V)
   check_number(n.start, "n.start", min=1)
   check_number(iter.max, "iter.max", min=1)
   check_number(eps, "eps", pos=TRUE)
 
-  op  <- list(n.start=n.start, iter.max=iter.max, eps=eps, print=0)
+  op  <- list(n.start=n.start, iter.max=iter.max, eps=eps,
+              print=SATS_EM_PRINT)
 
   # Call main function
   ret <- estSigAct_main(V, L, W, op) 
+  check_estSigActivity_output(ret, V, W)
   ret
 }
 
 estSigAct_main <- function(V, L, W, op) {
 
-  DEBUG <- 0
+  DEBUG <- SATS_EM_DEBUG
   if (DEBUG) {
     print(paste0("nrow(V)=", nrow(V), ", ncol(V)=", ncol(V)))
     print(paste0("nrow(L)=", nrow(L), ", ncol(L)=", ncol(L)))
@@ -82,17 +81,21 @@ estSigAct_main <- function(V, L, W, op) {
   # Integer arguments passed into C code
   iargs <- c(n, k, p, op$n.start, op$iter.max, op$print, DEBUG)
 
-  L[L == 0] <- 1
-  V[L == 0] <- 0
-  lower     <- 1e-6
+  # Entries with zero panel opportunity are structurally unobservable. The C
+  # likelihood code requires positive denominators, so those L entries are set
+  # to one after the corresponding mutation counts have been set to zero.
+  zero_opportunity <- L == 0
+  V[zero_opportunity] <- 0
+  L[zero_opportunity] <- 1
+  lower     <- SATS_EM_INIT_LOWER
   upper     <- sum(V)/sum(L)
 
   # Double arguments passed to C code
   dargs     <- c(op$eps, lower, upper)
 
   # Initialize return objects from C code
-  ret_H     <- rep(-9999.0e200, k*n)
-  ret_ll    <- -9999.0
+  ret_H     <- rep(SATS_DOUBLE_MISS, k*n)
+  ret_ll    <- SATS_LOGLIKE_MISS
   ret_conv  <- 0
 
   # Call C code

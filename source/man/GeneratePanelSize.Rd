@@ -1,9 +1,9 @@
 
 \name{GeneratePanelSize}
 \alias{GeneratePanelSize}
-\title{Generate Panel Size Matrix}
+\title{Generate a panel-context matrix}
 \description{
-   Generation of the panel size matrix given the panel information.
+   Generate a panel-context matrix from panel-coordinate information.
 }
 \usage{ GeneratePanelSize(genomic_information, Class = c("SBS", "DBS"), 
           SBS_order = c("COSMIC", "signeR"), ref.genome="hg19")
@@ -14,40 +14,44 @@
                  "SBS" (for single base substitutions) or "DBS" (for double base
                  substitutions). If "DBS" is selected, the \code{SBS_order} 
                  argument is ignored. }
-    \item{SBS_order}{Mutation type order either one of "COSMIC" or "signeR" (see details).}
-    \item{ref.genome}{The reference genome "hg19" or "hg38".}
+    \item{SBS_order}{Mutation-type order, either \code{"COSMIC"} or
+    \code{"signeR"} (see details).}
+    \item{ref.genome}{The reference genome, either \code{"hg19"} or
+    \code{"hg38"}.}
 }
 \details{ 
-The first argument 'genomic_information' should contain columns 'Chromosome', 
-'Start_Position', 'End_Position', 'SEQ_ASSAY_ID'. 
-The column 'Chromosome' contains chromosome number where 'Start_Position' and
-'End_Position' columns are start and end positions of the targeted panel. 
-The last column 'SEQ_ASSAY_ID' distinguishes different panels consisting of the result. 
-Please note that the column names of 'genomic_information' identical to 'Chromosome', 
-'Start_Position', 'End_Position', 'SEQ_ASSAY_ID'.
+The first argument \code{genomic_information} must contain the columns
+\code{Chromosome}, \code{Start_Position}, \code{End_Position} and
+\code{SEQ_ASSAY_ID}. The \code{Chromosome} column identifies the chromosome,
+\code{Start_Position} and \code{End_Position} define the targeted interval, and
+\code{SEQ_ASSAY_ID} identifies the sequencing assay or panel. These column names
+must be provided exactly.
 BED target-region files can first be converted into this format with
 \code{\link{ReadBEDAsPanelInfo}}.
-The second argument specifies mutation type order as either one of "COSMIC" or 
-"signeR" where "COSMIC" corresponds to the 96 SBS mutation-type order used by COSMIC v3.2 and 
-"signeR" corresponds to the order from the signeR package.
-\bold{Note}: The result of 'GeneratePanelSize()' may NOT be an 'L' matrix.
+
+For SBS analyses, \code{SBS_order = "COSMIC"} returns the COSMIC-style SBS96
+mutation-channel order and \code{SBS_order = "signeR"} returns the order used by
+the \code{signeR} package. This argument controls the row order of the returned
+mutation-opportunity matrix only; the COSMIC reference-signature version used for
+mapping is controlled separately by \code{\link{MappingSignature}}.
+
+\bold{Note}: The result of \code{GeneratePanelSize()} may not be an \code{L}
+matrix.
 For the standard preprocessing workflow, users can call
 \code{\link{GenerateLMatrix}} directly with panel-coordinate and sample-panel
 annotation data. \code{GeneratePanelSize()} is retained as a lower-level helper
 for users who want to inspect or reuse panel-level context counts.
-The resulting augmented matrix can be used as the opportunity matrix for 'signeR()' function, 
-'L' matrix for 'EstimateSigActivity()' and 'CalculateSignatureBurdens()' functions. 
-Therefore, it is important the mutation type order (row names) should be the same as 
-input matrix (Mutation type matrix 'V'). 
-We highly recommend confirming that both 'V' and 'L' matrices have the same mutation type 
-order. The SBS_order argument controls mutation-type ordering only; the COSMIC
-reference-signature version used for mapping is controlled separately by
-\code{\link{MappingSignature}}.
+The resulting panel-level matrix can be used as the opportunity matrix for
+\code{signeR()} or expanded to a sample-level \code{L} matrix with
+\code{\link{GenerateLMatrix}}. The mutation-channel row order must match the row
+order of the mutation-count matrix \code{V}.
 
 }
-\value{ 
- A data frame of 96 by 'S' (the number of panels, 'SEQ_ASSAY_ID') where entries 
- denote the number of trinucleotides per million base pairs.
+\value{
+ A data frame of P by S, where P is the number of mutation channels
+ (96 for SBS or 78 for DBS) and S is the number of sequencing panels
+ (\code{SEQ_ASSAY_ID}). Entries denote mutation opportunities per million
+ base pairs for each panel.
 }
 %\references{}
 \author{

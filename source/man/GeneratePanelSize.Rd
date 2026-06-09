@@ -25,6 +25,8 @@ The column 'Chromosome' contains chromosome number where 'Start_Position' and
 The last column 'SEQ_ASSAY_ID' distinguishes different panels consisting of the result. 
 Please note that the column names of 'genomic_information' identical to 'Chromosome', 
 'Start_Position', 'End_Position', 'SEQ_ASSAY_ID'.
+BED target-region files can first be converted into this format with
+\code{\link{ReadBEDAsPanelInfo}}.
 The second argument specifies mutation type order as either one of "COSMIC" or 
 "signeR" where "COSMIC" corresponds to the 96 SBS mutation-type order used by COSMIC v3.2 and 
 "signeR" corresponds to the order from the signeR package.
@@ -75,4 +77,4 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 }
 %\keyword{ mutational signatures } 
 \seealso{ \code{\link{GenerateLMatrix}}, \code{\link{GenerateVMatrix}},
-\code{\link{EstimateSigActivity}} }
+\code{\link{ReadBEDAsPanelInfo}}, \code{\link{EstimateSigActivity}} }

@@ -1,5 +1,17 @@
 # SATS News
 
+## SATS 1.0.10
+
+- Added `ReadVCFAsMutationRecord()` to convert simple single-sample VCF files into the
+  SATS-compatible MAF-like mutation-record table used by `GenerateVMatrix()`.
+- Added `ReadBEDAsPanelInfo()` to convert BED target-region files from
+  0-based, half-open BED coordinates into the 1-based, inclusive panel
+  coordinate format used by `GeneratePanelSize()` and `GenerateLMatrix()`.
+- Added small single-sample VCF and BED example files and unit tests for the complete
+  `VCF/BED -> mutation_record/panel_info -> V/L` preprocessing path.
+- Clarified that these converters support standard targeted-panel input
+  preparation and do not replace full clinical VCF normalization pipelines.
+
 ## SATS 1.0.9
 
 - Added `GenerateVMatrix()` to generate SBS96 or DBS78 mutation-count matrices

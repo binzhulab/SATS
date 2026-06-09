@@ -16,7 +16,7 @@
         <h1 class="sr-only">Signature Analyzer for Targeted Sequencing (SATS)</h1>
         <img class="site-logo" src="assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)">
         <div class="badges" aria-label="Project badges">
-          <span>Version 1.0.9</span>
+          <span>Version 1.0.10</span>
           <span>R package</span>
           <span>CC BY-NC 4.0</span>
           <span>Tests included</span>
@@ -24,7 +24,8 @@
         <p class="lead">
           Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware
           framework for mutational signature analysis in targeted sequencing
-          data. It supports de novo signature detection, mapping to tumor
+          data. It supports simple single-sample Variant Call Format (VCF) and Browser
+          Extensible Data (BED) input preparation, de novo signature detection, mapping to tumor
           mutational burden (TMB)-normalized reference signatures,
           individual-tumor refitting and signature-attributed mutation burden
           estimation.
@@ -37,7 +38,7 @@
         <p class="link-row">
           <a href="https://github.com/binzhulab/SATS">GitHub</a>
           <span>|</span>
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.9.pdf">User guide PDF</a>
+          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">User guide PDF</a>
           <span>|</span>
           <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/SATS-manual.pdf">Manual</a>
         </p>
@@ -54,14 +55,16 @@
       <section class="software-status" id="software-status" aria-labelledby="software-status-title">
         <h2 id="software-status-title">Current software status</h2>
         <p>
-          The current reviewer-response version is <strong>SATS v1.0.9</strong>.
-          This update adds preprocessing utilities for constructing matched
-          mutation-count and panel-context matrices from MAF-like mutation
-          records and panel annotations (<code>GenerateVMatrix()</code> and
-          <code>GenerateLMatrix()</code>), expands the executable user guide,
-          adds regression tests for the main user-facing functions, and includes
-          a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check
-          workflow.
+          The current reviewer-response version is <strong>SATS v1.0.10</strong>.
+          This update adds lightweight converters for preparing SATS inputs from
+          simple single-sample VCF and BED files (<code>ReadVCFAsMutationRecord()</code> and
+          <code>ReadBEDAsPanelInfo()</code>), while retaining preprocessing
+          utilities for constructing matched mutation-count and panel-context
+          matrices from MAF-like mutation records and panel annotations
+          (<code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code>).
+          The repository also includes an expanded executable user guide,
+          regression tests for the main user-facing functions, and a minimal
+          Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
         </p>
         <p>
           The GENIE version 13.0-public panels analyzed in the manuscript remain
@@ -147,7 +150,7 @@ library(SATS)</code></pre>
           <figcaption>SATS workflow for targeted sequencing-based mutational signature analysis.</figcaption>
         </figure>
         <div class="summary-list">
-          <p><strong>Prepare V and L matrices.</strong> Use <code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code> to construct matched mutation-count and panel-context matrices from MAF-like mutation records, panel coordinates and sample-panel annotations.</p>
+          <p><strong>Prepare V and L matrices.</strong> Use <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code> and <code>GenerateLMatrix()</code> to construct matched mutation-count and panel-context matrices from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations.</p>
           <p><strong>Inspect panel context.</strong> Use <code>GeneratePanelSize()</code> as a lower-level helper when panel-level context counts need to be inspected before sample-level expansion.</p>
           <p><strong>Detect signatures.</strong> Estimate cohort-level profiles with <code>signeR</code> or another compatible extraction method using panel-adjusted opportunity counts.</p>
           <p><strong>Map and refit.</strong> Map de novo profiles to TMB-normalized Catalogue of Somatic Mutations in Cancer (COSMIC) reference signatures and refit signatures in individual tumors.</p>
@@ -169,9 +172,9 @@ library(SATS)</code></pre>
           calculation with <code>CalculateSignatureBurdens()</code>.
         </p>
         <p>
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.9.md">Open the user guide</a>
+          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.md">Open the user guide</a>
           or
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.9.pdf">download the PDF</a>.
+          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">download the PDF</a>.
         </p>
       </section>
 
@@ -185,7 +188,7 @@ library(SATS)</code></pre>
           dependencies.
         </p>
         <ul>
-          <li><strong>Unit tests:</strong> cover <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
+          <li><strong>Unit tests:</strong> cover <code>ReadVCFAsMutationRecord()</code>, <code>ReadBEDAsPanelInfo()</code>, <code>GenerateVMatrix()</code>, <code>GenerateLMatrix()</code>, <code>CalculateSignatureBurdens()</code>, <code>EstimateSigActivity()</code> and <code>GeneratePanelSize()</code>.</li>
           <li><strong>Workflow template:</strong> <code>nextflow/example1</code> calls <code>GeneratePanelSize()</code> on an input R data file.</li>
           <li><strong>Container setup:</strong> the Dockerfile installs SATS and required R/Bioconductor dependencies.</li>
         </ul>
@@ -198,7 +201,7 @@ Rscript -e 'testthat::test_dir("tests/testthat")'</code></pre>
       <section id="resources">
         <h2>Documentation and resources</h2>
         <div class="resource-list">
-          <p><a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.9.pdf">User guide</a> — installation, input format and example workflows.</p>
+          <p><a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">User guide</a> — installation, input format and example workflows.</p>
           <p><a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/SATS-manual.pdf">Package manual</a> — function-level R documentation.</p>
           <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive catalogue</a> — SBS and DBS signature frequencies and etiologies.</p>
           <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online refitting tool</a> — targeted sequencing signature refitting interface.</p>
@@ -216,7 +219,7 @@ Rscript -e 'testthat::test_dir("tests/testthat")'</code></pre>
       </section>
 
       <footer>
-        <p>SATS v1.0.9 · <a href="#top">Back to top</a></p>
+        <p>SATS v1.0.10 · <a href="#top">Back to top</a></p>
       </footer>
     </main>
   </body>

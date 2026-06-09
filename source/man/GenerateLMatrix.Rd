@@ -35,6 +35,9 @@ For backward compatibility, the first argument can also be a panel-context
 matrix returned by \code{\link{GeneratePanelSize}}. In that lower-level workflow,
 \code{GenerateLMatrix()} only expands the provided panel-context matrix to the
 sample level.
+
+BED target-region files can first be converted into SATS-compatible
+panel-coordinate tables with \code{\link{ReadBEDAsPanelInfo}}.
 }
 
 \value{ 
@@ -64,4 +67,5 @@ stopifnot(identical(rownames(L_mat), rownames(L_mat2)))
 # in https://github.com/binzhulab/SATS/tree/main.
 }
 %\keyword{ mutational signatures } 
-\seealso{ \code{\link{GeneratePanelSize}}, \code{\link{GenerateVMatrix}} }
+\seealso{ \code{\link{GeneratePanelSize}}, \code{\link{GenerateVMatrix}},
+\code{\link{ReadBEDAsPanelInfo}} }

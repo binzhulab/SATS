@@ -28,8 +28,9 @@ The \code{mutation_record} data frame must contain the columns
 contexts. DBS analyses use records with \code{Variant_Type == "DNP"} and
 generate 78 double-base substitution contexts.
 
-This function is intended for MAF-like tabular mutation records. It does not
-parse raw VCF files.
+This function is intended for MAF-like tabular mutation records. Simple
+single-sample VCF files can first be converted into this tabular format with
+\code{\link{ReadVCFAsMutationRecord}}.
 }
 \value{
 A numeric matrix with mutation contexts in rows and tumor samples in columns.
@@ -47,5 +48,6 @@ V_sbs <- GenerateVMatrix(sbs_mut, Class = "SBS", ref.genome = "hg19")
 dim(V_sbs)
 }
 \seealso{
-\code{\link{GenerateLMatrix}}, \code{\link{GeneratePanelSize}}
+\code{\link{GenerateLMatrix}}, \code{\link{GeneratePanelSize}},
+\code{\link{ReadVCFAsMutationRecord}}
 }

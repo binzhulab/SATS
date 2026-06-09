@@ -2,7 +2,7 @@
 
 <img src="docs/assets/sats-logo.png" alt="Signature Analyzer for Targeted Sequencing (SATS)" width="780">
 
-![Version](https://img.shields.io/badge/version-1.0.9-blue)
+![Version](https://img.shields.io/badge/version-1.0.10-blue)
 ![R](https://img.shields.io/badge/R-%3E%3D4.1.0-276DC3)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-testthat-green)
@@ -13,17 +13,17 @@
   <a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online signature refitting tool</a>
 </p>
 
-[User Guide](User_Guide_SATS_v1.0.9.md) | [User Guide PDF](User_Guide_SATS_v1.0.9.pdf) | [R Manual](SATS-manual.pdf) | [Project Webpage](docs/)
+[User Guide](User_Guide_SATS_v1.0.10.md) | [User Guide PDF](User_Guide_SATS_v1.0.10.pdf) | [R Manual](SATS-manual.pdf) | [Project Webpage](docs/)
 
 </div>
 
-Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling generation of SBS/DBS mutation count matrices from MAF-like mutation records, de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.
+Signature Analyzer for Targeted Sequencing (SATS) is a panel-aware framework for mutational signature analysis in targeted sequencing data. Unlike tools developed primarily for whole-exome sequencing (WES) or whole-genome sequencing (WGS), SATS models panel-specific sequence context and mutation opportunity, enabling generation of SBS/DBS mutation count matrices from MAF-like mutation records or simple single-sample Variant Call Format (VCF) files, panel-context generation from assay-coordinate tables or Browser Extensible Data (BED) files, de novo signature extraction, mapping to tumor mutational burden (TMB)-normalized reference signatures, individual-tumor signature refitting and calculation of signature-attributed mutation burdens.
 
 The accompanying manuscript applies SATS to 111,711 tumors from American Association for Cancer Research (AACR) Project GENIE (Genomics Evidence Neoplasia Information Exchange) to construct a real-world, panel-calibrated pan-cancer catalogue of targeted sequencing-derived mutational signatures. The package and repository support analysis of targeted-panel cohorts and use of the catalogue in settings where WES/WGS data are unavailable.
 
 ## Current Software Status
 
-The current reviewer-response version is **SATS v1.0.9**. This update adds preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`), expands the executable user guide, adds regression tests for the main user-facing functions, and includes a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
+The current reviewer-response version is **SATS v1.0.10**. This update adds lightweight converters for preparing SATS inputs from simple single-sample VCF files and BED target-region files (`ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`), while retaining preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`). The repository also includes an expanded executable user guide, regression tests for the main user-facing functions, a minimal Nextflow example, Dockerfile and GitHub Actions R-CMD-check workflow.
 
 The GENIE version 13.0-public panels analyzed in the manuscript remain substantially smaller than exome-scale assays. Supplementary Table 3 lists 56 targeted panels with assay lengths from 0.05 Mb to 9.95 Mb, with a median of 1.47 Mb and no panels in the 10-50 Mb, 50-80 Mb or 80 Mb-WGS ranges. SATS is panel-size aware and can be adapted to larger targeted panels, but WES/WGS remains preferred when available for de novo discovery or low-burden rare signatures.
 
@@ -57,7 +57,7 @@ The resulting SATS catalogue includes **26 single base substitution (SBS) signat
 
 ## Quick Install
 
-The current source version in this repository is **SATS v1.0.9**. Before the v1.0.9 branch is merged into `main`, install the current branch explicitly:
+The current source version in this repository is **SATS v1.0.10**. Before the v1.0.10 branch is merged into `main`, install the current branch explicitly:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
@@ -71,16 +71,16 @@ devtools::install_github(
 
 library(SATS)
 
-if (packageVersion("SATS") < "1.0.9" ||
+if (packageVersion("SATS") < "1.0.10" ||
     !"GenerateVMatrix" %in% getNamespaceExports("SATS")) {
-    stop("This workflow requires SATS >= 1.0.9. Reinstall SATS and restart R.")
+    stop("This workflow requires SATS >= 1.0.10. Reinstall SATS and restart R.")
 }
 ```
 
-Alternatively, download `SATS_1.0.9.tar.gz` and install the source archive:
+Alternatively, download `SATS_1.0.10.tar.gz` and install the source archive:
 
 ```bash
-R CMD INSTALL SATS_1.0.9.tar.gz
+R CMD INSTALL SATS_1.0.10.tar.gz
 ```
 
 SATS was formerly available from the [Comprehensive R Archive Network (CRAN)](https://CRAN.R-project.org/package=SATS). CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.
@@ -104,7 +104,7 @@ SATS separates panel-context generation, de novo signature detection, signature 
   <img width="900" alt="SATS workflow schematic" src="https://github.com/binzhulab/SATS/assets/51965629/64b226ef-58c1-4fc5-aca1-2be4c4a7cf6b">
 </p>
 
-1. **Prepare matched mutation-count and panel-context matrices** from MAF-like mutation records, panel coordinates and sample-panel annotations using `GenerateVMatrix()` and `GenerateLMatrix()`.
+1. **Prepare matched mutation-count and panel-context matrices** from MAF-like mutation records, simple single-sample VCF files, panel coordinates, BED target-region files and sample-panel annotations using `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()` and `GenerateLMatrix()`.
 2. **Detect de novo signatures** using panel-adjusted opportunity counts.
 3. **Map reference signatures** with `MappingSignature()` and Catalogue of Somatic Mutations in Cancer (COSMIC) TMB-normalized signatures.
 4. **Refit and estimate burdens** with `EstimateSigActivity()` and `CalculateSignatureBurdens()`.
@@ -113,8 +113,9 @@ SATS separates panel-context generation, de novo signature detection, signature 
 
 ## Usage and Examples
 
-The full executable workflow is maintained in the [User Guide](User_Guide_SATS_v1.0.9.md) and [User Guide PDF](User_Guide_SATS_v1.0.9.pdf). It includes:
+The full executable workflow is maintained in the [User Guide](User_Guide_SATS_v1.0.10.md) and [User Guide PDF](User_Guide_SATS_v1.0.10.pdf). It includes:
 
+- converting simple single-sample VCF and BED files into SATS-compatible mutation-record and panel-coordinate tables;
 - generating matched `V` and `L` matrices from MAF-like mutation records and panel-coordinate tables;
 - checking and aligning sample IDs and mutation-context rows between `V` and `L`;
 - selecting the initial `signeR()` discovery strategy: use individual samples directly for small cohorts, for example fewer than 100 samples, and use 100-sample pooled profiles for very large cohorts, such as analyses with about 10,000 tumors;
@@ -127,9 +128,9 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 
 ## Repository Layout
 
-- [`source/`](source/): current R package source, including preprocessing functions for MAF-like mutation records.
-- [`SATS_1.0.9.tar.gz`](SATS_1.0.9.tar.gz): source archive for the current version.
-- [`User_Guide_SATS_v1.0.9.md`](User_Guide_SATS_v1.0.9.md): current user guide.
+- [`source/`](source/): current R package source, including preprocessing functions for MAF-like mutation records and simple single-sample VCF/BED input preparation.
+- [`SATS_1.0.10.tar.gz`](SATS_1.0.10.tar.gz): source archive for the current version.
+- [`User_Guide_SATS_v1.0.10.md`](User_Guide_SATS_v1.0.10.md): current user guide.
 - [`SATS-manual.pdf`](SATS-manual.pdf): function-level R manual.
 - [`Generating_L/`](Generating_L/): panel-context generation helper scripts and example panel files.
 - [`nextflow/example1/`](nextflow/example1/): minimal Nextflow example for `GeneratePanelSize()`.
@@ -140,7 +141,7 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 
 ## Software Quality
 
-Unit tests are provided in `source/tests/testthat/` for the main user-facing functions, including `GenerateVMatrix()`, `GenerateLMatrix()`, `GeneratePanelSize()`, `CalculateSignatureBurdens()` and `EstimateSigActivity()`. The tests use simulated package data and small MAF-like mutation-record examples.
+Unit tests are provided in `source/tests/testthat/` for the main user-facing functions, including `ReadVCFAsMutationRecord()`, `ReadBEDAsPanelInfo()`, `GenerateVMatrix()`, `GenerateLMatrix()`, `GeneratePanelSize()`, `CalculateSignatureBurdens()` and `EstimateSigActivity()`. The tests use simulated package data and small single-sample VCF, BED and MAF-like mutation-record examples.
 
 Run tests locally:
 
@@ -161,7 +162,7 @@ The repository also includes a GitHub Actions workflow, `.github/workflows/R-CMD
 
 ## Input Expectations
 
-SATS accepts either summarized mutation-count and panel-context matrices or MAF-like mutation-record tables with panel-coordinate data frames. The package does not directly ingest raw Variant Call Format (VCF) or Browser Extensible Data (BED) files. VCF/BED-derived data should first be converted into MAF-like mutation records and panel-coordinate tables before running SATS.
+SATS accepts either summarized mutation-count and panel-context matrices, MAF-like mutation-record tables with panel-coordinate data frames, or simple single-sample VCF/BED input files that are converted with `ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`. The VCF/BED converters are intended for standard targeted-panel input preparation. Complex VCF normalization, multi-sample genotype parsing, tumor-normal genotype interpretation, phasing and representation of complex events should be handled upstream when needed.
 
 The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and reference signature matrix `W` must match. For SBS analyses, the `SBS_order` argument controls mutation-type ordering only; the COSMIC reference-signature version used for mapping is controlled separately by `MappingSignature(COSMICv=...)`, with `"v3.4"` as the current default.
 

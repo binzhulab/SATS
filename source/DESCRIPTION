@@ -1,7 +1,7 @@
 Package: SATS
 Title: Signature Analyzer for Targeted Sequencing (SATS)
-Version: 1.0.9
-Date: 2026-06-07
+Version: 1.0.10
+Date: 2026-06-09
 Authors@R: c(person(given="DongHyuk", family="Lee", role="aut", email="dhyuklee@pusan.ac.kr"),
              person(given="Bin", family="Zhu", role="aut", email="bin.zhu@nih.gov"),
              person(given="Bill", family="Wheeler", role="cre", email="wheelerb@imsweb.com"))

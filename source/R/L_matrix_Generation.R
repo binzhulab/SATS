@@ -230,7 +230,7 @@ L_matrix_generation <- function(Panel_context, Patient_Info){
   if (any(!idx)) {
     warning(sum(!idx), " sample(s) have SEQ_ASSAY_ID values not present in Panel_context and were removed")
   }
-  L <- Panel_context[, Patient_Info$SEQ_ASSAY_ID[idx]]
+  L <- Panel_context[, Patient_Info$SEQ_ASSAY_ID[idx], drop = FALSE]
   colnames(L) <- Patient_Info$PATIENT_ID[idx]
   #if(sum(idx) != nrow(Patient_Info)){
   #  warning(sprintf("There are patients for whom the panel context has not been provided in Patient_Info. 

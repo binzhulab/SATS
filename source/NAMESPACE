@@ -7,4 +7,4 @@ importFrom("IRanges", "IRanges")
 importFrom("Biostrings", "getSeq", "trinucleotideFrequency", "DNAString", 
            "DNAStringSet", "reverseComplement", "dinucleotideFrequency")
 importFrom("dplyr", "bind_cols", "%>%", "group_by", "summarise_at", "as_tibble")
-export(EstimateSigActivity, CalculateSignatureBurdens, MappingSignature, GeneratePanelSize, GenerateLMatrix, GenerateVMatrix)
+export(EstimateSigActivity, CalculateSignatureBurdens, MappingSignature, GeneratePanelSize, GenerateLMatrix, GenerateVMatrix, ReadVCFAsMutationRecord, ReadBEDAsPanelInfo)

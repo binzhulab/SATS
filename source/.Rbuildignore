@@ -1,0 +1,6 @@
+^src/.*[.]o$
+^src/.*[.]so$
+^src/symbols[.]rds$
+^[.]DS_Store$
+^[.]Rproj[.]user$
+^.*[.]Rcheck$

@@ -4,7 +4,8 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.10-blue)
 ![R](https://img.shields.io/badge/R-%3E%3D4.1.0-276DC3)
-![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)
+![Code license](https://img.shields.io/badge/code-GPL--2-blue)
+![Docs and assets license](https://img.shields.io/badge/docs%2Fassets-CC%20BY--NC%204.0-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-testthat-green)
 
 <p>
@@ -23,7 +24,7 @@ The accompanying manuscript applies SATS to 111,711 tumors from American Associa
 
 ## Current Software Status
 
-The current reviewer-response version is **SATS v1.0.10**. This update adds lightweight converters for preparing SATS inputs from simple single-sample VCF files and BED target-region files (`ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`), while retaining preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`). It also adds explicit matrix validation with `ValidateSATSInputs()`, including numeric, finite, non-negative, duplicate/missing identifier and named-axis alignment checks. The repository further includes an expanded executable user guide, regression tests for the main user-facing functions, a Dockerized SATS environment, Nextflow-compatible workflow examples and GitHub Actions checks for R package and Docker-image validation.
+The current source version is **SATS v1.0.10**. This update adds lightweight converters for preparing SATS inputs from simple single-sample VCF files and BED target-region files (`ReadVCFAsMutationRecord()` and `ReadBEDAsPanelInfo()`), while retaining preprocessing utilities for constructing matched mutation-count and panel-context matrices from MAF-like mutation records and panel annotations (`GenerateVMatrix()` and `GenerateLMatrix()`). It also adds explicit matrix validation with `ValidateSATSInputs()`, including numeric, finite, non-negative, duplicate/missing identifier and named-axis alignment checks. The repository further includes an expanded executable user guide, regression tests for the main user-facing functions, a Dockerized SATS environment, Nextflow-compatible workflow examples and GitHub Actions checks for R package and Docker-image validation.
 
 The GENIE version 13.0-public panels analyzed in the manuscript remain substantially smaller than exome-scale assays. Supplementary Table 3 lists 56 targeted panels with assay lengths from 0.05 Mb to 9.95 Mb, with a median of 1.47 Mb and no panels in the 10-50 Mb, 50-80 Mb or 80 Mb-WGS ranges. SATS is panel-size aware and can be adapted to larger targeted panels, but WES/WGS remains preferred when available for de novo discovery or low-burden rare signatures.
 
@@ -57,14 +58,13 @@ The resulting SATS catalogue includes **26 single base substitution (SBS) signat
 
 ## Quick Install
 
-The current source version in this repository is **SATS v1.0.10**. Before the v1.0.10 branch is merged into `main`, install the current branch explicitly:
+The current source version in this repository is **SATS v1.0.10**. Install the current GitHub source with:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
 devtools::install_github(
     "binzhulab/SATS",
-    ref = "software-reviewer-response-updates",
     subdir = "source",
     upgrade = "never"
 )
@@ -84,6 +84,12 @@ R CMD INSTALL SATS_1.0.10.tar.gz
 ```
 
 SATS was formerly available from the [Comprehensive R Archive Network (CRAN)](https://CRAN.R-project.org/package=SATS). CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.
+
+---
+
+## License
+
+The R package code in [`source/`](source/) is distributed under GPL-2, as listed in [`source/DESCRIPTION`](source/DESCRIPTION). Documentation, figures and other non-code repository assets are distributed under Creative Commons Attribution-NonCommercial 4.0 International unless otherwise stated.
 
 ---
 
@@ -137,7 +143,8 @@ Keeping the detailed code in one guide avoids duplicated examples and makes the 
 - [`nextflow/sats_workflow/`](nextflow/sats_workflow/): containerized Nextflow-compatible SATS workflow example for mapping, activity estimation and burden calculation.
 - [`nextflow.config`](nextflow.config): shared Nextflow configuration with a Docker profile.
 - [`docs/`](docs/): static project webpage for GitHub Pages.
-- [`old_versions/`](old_versions/): older package archives.
+- [`CITATION.cff`](CITATION.cff): software citation metadata for GitHub and citation managers.
+- [`old_versions/`](old_versions/): older package archives, earlier user guides and legacy manuscript figure files.
 
 ---
 
@@ -148,6 +155,7 @@ Unit tests are provided in `source/tests/testthat/` for the main user-facing fun
 Run tests locally:
 
 ```bash
+R CMD INSTALL SATS_1.0.10.tar.gz
 cd source
 Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
@@ -209,3 +217,5 @@ The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and
 If you use SATS or the targeted-sequencing mutational-signature catalogue, please cite:
 
 Lee et al., "A real-world pan-cancer catalogue of mutational signatures from 111,711 tumors" (submitted).
+
+Software citation metadata are also available in [`CITATION.cff`](CITATION.cff).

@@ -18,7 +18,8 @@
         <div class="badges" aria-label="Project badges">
           <span>Version 1.0.10</span>
           <span>R package</span>
-          <span>CC BY-NC 4.0</span>
+          <span>Code GPL-2</span>
+          <span>Docs/assets CC BY-NC 4.0</span>
           <span>Tests included</span>
         </div>
         <p class="lead">
@@ -38,9 +39,9 @@
         <p class="link-row">
           <a href="https://github.com/binzhulab/SATS">GitHub</a>
           <span>|</span>
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">User guide PDF</a>
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.10.pdf">User guide PDF</a>
           <span>|</span>
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/SATS-manual.pdf">Manual</a>
+          <a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">Manual</a>
         </p>
       </header>
 
@@ -55,7 +56,7 @@
       <section class="software-status" id="software-status" aria-labelledby="software-status-title">
         <h2 id="software-status-title">Current software status</h2>
         <p>
-          The current reviewer-response version is <strong>SATS v1.0.10</strong>.
+          The current source version is <strong>SATS v1.0.10</strong>.
           This update adds lightweight converters for preparing SATS inputs from
           simple single-sample VCF and BED files (<code>ReadVCFAsMutationRecord()</code> and
           <code>ReadBEDAsPanelInfo()</code>), while retaining preprocessing
@@ -130,7 +131,6 @@
     install.packages("devtools")
 devtools::install_github(
     "binzhulab/SATS",
-    ref = "software-reviewer-response-updates",
     subdir = "source",
     upgrade = "never"
 )
@@ -181,9 +181,9 @@ library(SATS)</code></pre>
           calculation with <code>CalculateSignatureBurdens()</code>.
         </p>
         <p>
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.md">Open the user guide</a>
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.10.md">Open the user guide</a>
           or
-          <a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">download the PDF</a>.
+          <a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.10.pdf">download the PDF</a>.
         </p>
       </section>
 
@@ -215,11 +215,23 @@ nextflow run nextflow/sats_workflow/main.nf -profile docker \
       <section id="resources">
         <h2>Documentation and resources</h2>
         <div class="resource-list">
-          <p><a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/User_Guide_SATS_v1.0.10.pdf">User guide</a> — installation, input format and example workflows.</p>
-          <p><a href="https://github.com/binzhulab/SATS/blob/software-reviewer-response-updates/SATS-manual.pdf">Package manual</a> — function-level R documentation.</p>
+          <p><a href="https://github.com/binzhulab/SATS/blob/main/User_Guide_SATS_v1.0.10.pdf">User guide</a> — installation, input format and example workflows.</p>
+          <p><a href="https://github.com/binzhulab/SATS/blob/main/SATS-manual.pdf">Package manual</a> — function-level R documentation.</p>
           <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS">Interactive catalogue</a> — SBS and DBS signature frequencies and etiologies.</p>
           <p><a href="https://analysistools.cancer.gov/mutational-signatures/#/refitting">Online refitting tool</a> — targeted sequencing signature refitting interface.</p>
         </div>
+      </section>
+
+      <hr>
+
+      <section id="license">
+        <h2>License</h2>
+        <p>
+          The R package code in <code>source/</code> is distributed under GPL-2.
+          Documentation, figures and other non-code repository assets are
+          distributed under Creative Commons Attribution-NonCommercial 4.0
+          International unless otherwise stated.
+        </p>
       </section>
 
       <hr>
@@ -230,6 +242,7 @@ nextflow run nextflow/sats_workflow/main.nf -profile docker \
           Lee et al., "A real-world pan-cancer catalogue of mutational signatures
           from 111,711 tumors" (submitted).
         </p>
+        <p>Software citation metadata are available in <code>CITATION.cff</code>.</p>
       </section>
 
       <footer>

@@ -8,14 +8,13 @@ The accompanying manuscript applies SATS to 111,711 tumors from AACR Project GEN
 
 ## Installation
 
-The current source version in this repository is SATS v1.0.10. Before the v1.0.10 branch is merged into `main`, install the current branch explicitly:
+The current source version in this repository is SATS v1.0.10. Install the current GitHub source with:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
 devtools::install_github(
     "binzhulab/SATS",
-    ref = "software-reviewer-response-updates",
     subdir = "source",
     upgrade = "never"
 )
@@ -345,5 +344,7 @@ Expected outputs include `sats_mapping_results.csv`, `sats_activity_matrix.csv`,
 If you use SATS or the targeted-sequencing mutational-signature catalogue, please cite:
 
 Lee et al., "A real-world pan-cancer catalogue of mutational signatures from 111,711 tumors" (submitted).
+
+Software citation metadata are available in `CITATION.cff`.
 
 Interactive catalogue plots are available at https://analysistools.cancer.gov/mutational-signatures/#/catalog/STS. An online signature refitting tool is available at https://analysistools.cancer.gov/mutational-signatures/#/refitting.

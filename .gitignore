@@ -8,3 +8,6 @@ nextflow/example1/work/
 nextflow/example1/.nextflow*
 nextflow/example1/outfile.rda
 nextflow/example1/r_libs/
+nextflow/*/work/
+nextflow/*/.nextflow*
+nextflow_results/

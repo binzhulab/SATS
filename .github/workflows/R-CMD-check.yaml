@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - software-reviewer-response-updates
   pull_request:
     branches:
       - main
@@ -58,6 +59,7 @@ jobs:
           BiocManager::install("IRanges", version = remotes::bioc_version())
           BiocManager::install("Biostrings", version = remotes::bioc_version())
           BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", version = remotes::bioc_version())
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38", version = remotes::bioc_version())
         shell: Rscript {0}
 
       - name: Install Bioconductor devel packages
@@ -68,6 +70,7 @@ jobs:
           BiocManager::install("IRanges", version = "devel")
           BiocManager::install("Biostrings", version = "devel")
           BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", version = "devel")
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38", version = "devel")
         shell: Rscript {0}
 
       - name: Cache R packages

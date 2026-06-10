@@ -1,5 +1,46 @@
 # SATS News
 
+## SATS 1.0.10
+
+- Added a root `nextflow.config` with Docker profile support and a
+  containerized `nextflow/sats_workflow/` example that runs SATS mapping,
+  activity estimation and burden calculation from bundled example data.
+- Added the exported `ValidateSATSInputs()` function and strengthened internal
+  input/output validation for SATS matrices, including numeric, finite,
+  non-negative, integer-like mutation-count, duplicate/missing identifier and
+  named-axis alignment checks.
+- Expanded Docker support with Open Containers Initiative labels, required test
+  dependencies and an image-build smoke test; added a GitHub Actions workflow
+  to build and smoke-test the Docker image.
+- Improved internal constant definitions, code-level documentation and
+  user-facing documentation for fixed mutation-channel orders, supported COSMIC
+  versions, supported genome builds, DBS canonicalization, Mb scaling and EM
+  optimization defaults; these changes do not alter the default statistical
+  workflow.
+- Added `ReadVCFAsMutationRecord()` to convert simple single-sample VCF files into the
+  SATS-compatible MAF-like mutation-record table used by `GenerateVMatrix()`.
+- Added `ReadBEDAsPanelInfo()` to convert BED target-region files from
+  0-based, half-open BED coordinates into the 1-based, inclusive panel
+  coordinate format used by `GeneratePanelSize()` and `GenerateLMatrix()`.
+- Added small single-sample VCF and BED example files and unit tests for the complete
+  `VCF/BED -> mutation_record/panel_info -> V/L` preprocessing path.
+- Clarified that these converters support standard targeted-panel input
+  preparation and do not replace full clinical VCF normalization pipelines.
+
+## SATS 1.0.9
+
+- Added `GenerateVMatrix()` to generate SBS96 or DBS78 mutation-count matrices
+  from MAF-like mutation-record tables.
+- Extended `GenerateLMatrix()` so users can prepare an `L` matrix directly from
+  a panel-coordinate table and clinical sample table.
+- Added small SBS and DBS mutation-record examples and unit tests for the new
+  preprocessing workflow.
+- Added named-matrix alignment checks so `V`, `L`, `W` and `H` are reordered
+  when they contain the same sample/context/signature names and rejected when
+  named IDs differ.
+- Clarified that SATS supports MAF-like mutation records and panel-coordinate
+  tables, but does not directly parse raw VCF or BED files.
+
 ## SATS 1.0.8
 
 - Updated the current source package under `source/`.

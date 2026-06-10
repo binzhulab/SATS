@@ -1,35 +1,49 @@
 
 \name{GenerateLMatrix}
 \alias{GenerateLMatrix}
-\title{Generate an L Matrix}
+\title{Generate a sample-level panel-context matrix}
 \description{
-   Generation of the L matrix.
+   Generate the sample-level \code{L} matrix from panel-context or
+   panel-coordinate information and sample-panel annotations.
 }
-\usage{ GenerateLMatrix(Panel_context, Patient_Info)
+\usage{ GenerateLMatrix(Panel_context, Patient_Info, Class = c("SBS", "DBS"),
+          SBS_order = c("COSMIC", "signeR"), ref.genome = "hg19")
 }
 \arguments{
-    \item{Panel_context}{A data frame returned from \code{\link{GeneratePanelSize}}.}
-    \item{Patient_Info}{A data frame with columns 'PATIENT_ID' and 'SEQ_ASSAY_ID'.}
+    \item{Panel_context}{Either a panel-context matrix returned from
+    \code{\link{GeneratePanelSize}} or a panel-coordinate data frame containing
+    \code{Chromosome}, \code{Start_Position}, \code{End_Position} and
+    \code{SEQ_ASSAY_ID}.}
+    \item{Patient_Info}{A sample-panel annotation data frame containing
+    \code{SEQ_ASSAY_ID} and either \code{PATIENT_ID} or \code{SAMPLE_ID}.}
+    \item{Class}{A character string specifying the mutation class. Used when
+    \code{Panel_context} is a panel-coordinate data frame.}
+    \item{SBS_order}{Mutation-type order, either \code{"COSMIC"} or
+    \code{"signeR"}. Used for SBS analyses when \code{Panel_context} is a
+    panel-coordinate data frame.}
+    \item{ref.genome}{The reference genome, either \code{"hg19"} or
+    \code{"hg38"}. Used when \code{Panel_context} is a panel-coordinate data
+    frame.}
 }
-\details{The GenerateLMatrix() function relies on the 'Patient_Info' data frame to link 
-each patient to their specific sequencing assay, identified by 'SEQ_ASSAY_ID'.
-This is the same core information required by the genomic_information
-argument in the GeneratePanelSize() function. The values in the 'SEQ_ASSAY_ID'
-column will be used as the column names for the resulting L matrix, ensuring each 
-column corresponds to a unique sample.
+\details{\code{GenerateLMatrix()} links each sample to its specific
+sequencing assay, identified by \code{SEQ_ASSAY_ID}. For the standard
+preprocessing workflow, provide panel-coordinate information as the first
+argument and sample-panel annotation as the second argument. The function then
+calculates panel-level mutation-context opportunity counts internally and
+expands them to a sample-level \code{L} matrix.
 
-It is important to understand the distinction between the two functions. 
-GeneratePanelSize() calculates panel-level mutation-context opportunity
-counts for each sequencing assay. GenerateLMatrix() then expands those
-panel-level opportunity counts to the sample level by matching each
-patient to the corresponding SEQ_ASSAY_ID in Patient_Info. To generate the
-correctly dimensioned L matrix with the proper mutation-context
-opportunities for each sample, call GeneratePanelSize() first and then
-GenerateLMatrix().
+For backward compatibility, the first argument can also be a panel-context
+matrix returned by \code{\link{GeneratePanelSize}}. In that lower-level workflow,
+\code{GenerateLMatrix()} only expands the provided panel-context matrix to the
+sample level.
+
+BED target-region files can first be converted into SATS-compatible
+panel-coordinate tables with \code{\link{ReadBEDAsPanelInfo}}.
 }
 
 \value{ 
- A data frame (L matrix) of 96 by N, where N is the number of tumors.
+ A data frame (L matrix) of P by N, where P is the number of mutation
+ channels (96 for SBS or 78 for DBS) and N is the number of tumors.
 }
 %\references{}
 \author{
@@ -38,11 +52,22 @@ Donghyuk Lee <dhyuklee@pusan.ac.kr> and Bin Zhu <bin.zhu@nih.gov>
 \examples{
 data(SimData, package="SATS")
 
-Panel_context <- GeneratePanelSize(genomic_information=SimData$PanelEx, Class="SBS", 
-                         SBS_order="COSMIC")
-L_mat <- GenerateLMatrix(Panel_context, SimData$PatientInfo) 
+keep <- match(SimData$PatientInfo$SEQ_ASSAY_ID,
+              unique(SimData$PanelEx$SEQ_ASSAY_ID), nomatch=0) > 0
+PatientInfo <- SimData$PatientInfo[keep, ]
+
+L_mat <- GenerateLMatrix(SimData$PanelEx, PatientInfo, Class="SBS",
+                         SBS_order="COSMIC", ref.genome="hg19")
+
+Panel_context <- GeneratePanelSize(genomic_information=SimData$PanelEx,
+                                   Class="SBS", SBS_order="COSMIC")
+L_mat2 <- GenerateLMatrix(Panel_context, PatientInfo)
+
+stopifnot(identical(colnames(L_mat), colnames(L_mat2)))
+stopifnot(identical(rownames(L_mat), rownames(L_mat2)))
 # For more detailed usage, please refer to README and the user manual
 # in https://github.com/binzhulab/SATS/tree/main.
 }
 %\keyword{ mutational signatures } 
-\seealso{ \code{\link{GeneratePanelSize}} }
+\seealso{ \code{\link{GeneratePanelSize}}, \code{\link{GenerateVMatrix}},
+\code{\link{ReadBEDAsPanelInfo}} }

@@ -6,38 +6,39 @@
     SATS (Signature Analyzer for Targeted Sequencing)
 }
 \description{
-  This package is created to perform mutational signature 
-  analysis for targeted sequenced tumors. 
+  This package performs mutational signature analysis 
+  for tumors profiled by targeted sequencing. 
   Unlike the canonical analysis of mutational signatures, 
   SATS factorizes the mutation counts matrix into a panel 
-  context matrix (measuring the size of the targeted sequenced genome 
-  for each tumor in the unit of million base pairs (Mb)), 
+  context matrix (measuring mutation opportunities per million base pairs
+  for each tumor), 
   a signature profile matrix, and a signature activity matrix. 
   SATS also calculates the expected number of mutations attributed 
   by a signature, namely signature burden, 
-  for each targeted sequenced tumor.
+  for each tumor profiled by targeted sequencing.
 }
 \details{
 This package includes a novel algorithm, SATS, 
 to perform mutational signature analysis for targeted 
-sequenced tumors. The algorithm first applies the signeR 
+sequencing data. The algorithm first applies the signeR 
 algorithm to extract profiles of de novo mutational signatures 
 by appropriately adjusting for various panel sizes. 
 Next, the profiles of identified de novo mutational signatures 
 are mapped to the profiles of catalog signatures of tumor mutation 
-burden (TMB), in the unit of the number of mutations per million base pairs, 
+burden (TMB), measured as the number of mutations per million base pairs, 
 using penalized non-negative least squares. 
 Then, given the panel sizes and profiles of mapped TMB catalog signatures, 
 signature activities are estimated for all samples simultaneously 
 through the Expectation-Maximization (EM) algorithm. 
 Finally, the expected number of mutations attributed by a signature, 
-namely signature burden, is calculated for each targeted sequenced tumor.
+namely signature burden, is calculated for each tumor profiled by targeted sequencing.
 
-The main functions in this package are \code{\link{GenerateLMatrix}}, 
-\code{\link{EstimateSigActivity}},\cr 
-\code{\link{CalculateSignatureBurdens}}, and \code{\link{MappingSignature}}.
+The main functions in this package are \code{\link{GenerateVMatrix}},
+\code{\link{GenerateLMatrix}}, \code{\link{ValidateSATSInputs}},\cr
+\code{\link{EstimateSigActivity}}, \code{\link{CalculateSignatureBurdens}},
+and \code{\link{MappingSignature}}.
 
-The accompanying manuscript applies SATS to 111,711 targeted-sequenced tumors
+The accompanying manuscript applies SATS to 111,711 tumors profiled by targeted sequencing
 from AACR Project GENIE to construct a real-world, panel-calibrated pan-cancer
 catalogue of mutational signatures.
 }

@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+      - software-reviewer-response-updates
+  pull_request:
+    branches:
+      - main
+
+name: Docker-build
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build SATS Docker image
+        run: docker build --tag sats:${{ github.sha }} .
+
+      - name: Run SATS Docker smoke test
+        run: >
+          docker run --rm sats:${{ github.sha }}
+          Rscript -e 'library(SATS);
+          data(SimData, package="SATS");
+          data(RefTMB, package="SATS");
+          stopifnot(is.matrix(SimData$V), is.matrix(SimData$L));
+          stopifnot(identical(rownames(SimData$V), rownames(SimData$L)));
+          stopifnot(nrow(RefTMB$TMB_SBS_v3.4) == nrow(SimData$V))'

@@ -11,7 +11,7 @@ GeneratePanelSize <- function(genomic_information, Class = c("SBS", "DBS"), SBS_
     check_Types(SBS_order)
     ret <- GeneratePanelSize_SBS(genomic_information, Types=SBS_order, ref.genome=ref.genome)
   } else {
-    ret <- GeneratePanelSize_DBS(genomic_information)
+    ret <- GeneratePanelSize_DBS(genomic_information, ref.genome=ref.genome)
   }
   ret
 }
@@ -20,19 +20,8 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
 
     SEQ_ASSAY_ID <- NULL # To remove warning when compiling
 
-    DBS_order <- c("ACCA", "ACCG", "ACCT", "ACGA", "ACGG", "ACGT", "ACTA", "ACTG", "ACTT", 
-                   "ATCA", "ATCC", "ATCG", "ATGA", "ATGC", "ATTA", 
-                   "CCAA", "CCAG", "CCAT", "CCGA", "CCGG", "CCGT", "CCTA", "CCTG", "CCTT", 
-                   "CGAT", "CGGC", "CGGT", "CGTA", "CGTC", "CGTT", 
-                   "CTAA", "CTAC", "CTAG", "CTGA", "CTGC", "CTGG", "CTTA", "CTTC", "CTTG", 
-                   "GCAA", "GCAG", "GCAT", "GCCA", "GCCG", "GCTA", 
-                   "TAAT", "TACG", "TACT", "TAGC", "TAGG", "TAGT", 
-                   "TCAA", "TCAG", "TCAT", "TCCA", "TCCG", "TCCT", "TCGA", "TCGG", "TCGT", 
-                   "TGAA", "TGAC", "TGAT", "TGCA", "TGCC", "TGCT", "TGGA", "TGGC", "TGGT", 
-                   "TTAA", "TTAC", "TTAG", "TTCA", "TTCC", "TTCG", "TTGA", "TTGC", "TTGG")
-
-    Seq_assay_GRanges <- GRanges(seqnames=paste0("chr",genomic_information$Chromosome),
-                                 IRanges(start = genomic_information$Start_Position, end=genomic_information$End_Position), 
+    Seq_assay_GRanges <- GRanges(seqnames=sats_seqnames(genomic_information$Chromosome),
+                                 IRanges(start = genomic_information$Start_Position, end=genomic_information$End_Position),
                                  strand = "+")
     
     # get sequences
@@ -43,8 +32,10 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
     }
     Seq_assay_16 = dinucleotideFrequency(myseq) # key step: calculate dinucleotide frequency
     
-    #included in DBS
-    dinucleotideIncluded = c("AC","AT","CC","CG","CT","GC","TA","TC","TG","TT") # only 10 starting dinucleotide
+    # Collapse the 16 possible dinucleotides to the 10 canonical DBS contexts.
+    # Non-canonical contexts are reverse-complemented before summing so that
+    # the returned rows match the COSMIC DBS78 orientation.
+    dinucleotideIncluded = SATS_DBS_INCLUDED_DINUCLEOTIDES
     #all possible 16
     dinucleotide_16 = colnames(Seq_assay_16)
     idx = dinucleotide_16 %in% dinucleotideIncluded
@@ -71,10 +62,9 @@ GeneratePanelSize_DBS <- function(genomic_information, ref.genome="hg19") {
       group_by(SEQ_ASSAY_ID) %>% 
       summarise_at(colnames(assay_DBS),sum)
     
-    ## assay_DBS_re <- data.frame(t(assay_DBS_10[, dinucleotideIncluded, drop = FALSE]))/10^6
-    assay_DBS_re <- data.frame(t(assay_DBS_10[, substr(DBS_order, 1, 2), drop = FALSE]))/10^6
+    assay_DBS_re <- data.frame(t(assay_DBS_10[, substr(SATS_DBS_ORDER, 1, 2), drop = FALSE]))/SATS_BASES_PER_MB
     colnames(assay_DBS_re) <- assay_DBS_10$SEQ_ASSAY_ID
-    rownames(assay_DBS_re) <- DBS_order
+    rownames(assay_DBS_re) <- SATS_DBS_ORDER
 
     return(assay_DBS_re)
 }
@@ -101,53 +91,10 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
   
   SEQ_ASSAY_ID <- NULL
 
-  # Mutation type categories, there are 96 possible single base substitutions.
-  # Alexandrov v3.2 mutation type order. .
-  COSMIC <- c("A[C>A]A", "A[C>A]C", "A[C>A]G", "A[C>A]T", "C[C>A]A", 
-              "C[C>A]C", "C[C>A]G", "C[C>A]T", "G[C>A]A", "G[C>A]C", 
-              "G[C>A]G", "G[C>A]T", "T[C>A]A", "T[C>A]C", "T[C>A]G", 
-              "T[C>A]T", "A[C>G]A", "A[C>G]C", "A[C>G]G", "A[C>G]T", 
-              "C[C>G]A", "C[C>G]C", "C[C>G]G", "C[C>G]T", "G[C>G]A", 
-              "G[C>G]C", "G[C>G]G", "G[C>G]T", "T[C>G]A", "T[C>G]C", 
-              "T[C>G]G", "T[C>G]T", "A[C>T]A", "A[C>T]C", "A[C>T]G", 
-              "A[C>T]T", "C[C>T]A", "C[C>T]C", "C[C>T]G", "C[C>T]T", 
-              "G[C>T]A", "G[C>T]C", "G[C>T]G", "G[C>T]T", "T[C>T]A", 
-              "T[C>T]C", "T[C>T]G", "T[C>T]T", "A[T>A]A", "A[T>A]C", 
-              "A[T>A]G", "A[T>A]T", "C[T>A]A", "C[T>A]C", "C[T>A]G", 
-              "C[T>A]T", "G[T>A]A", "G[T>A]C", "G[T>A]G", "G[T>A]T", 
-              "T[T>A]A", "T[T>A]C", "T[T>A]G", "T[T>A]T", "A[T>C]A", 
-              "A[T>C]C", "A[T>C]G", "A[T>C]T", "C[T>C]A", "C[T>C]C", 
-              "C[T>C]G", "C[T>C]T", "G[T>C]A", "G[T>C]C", "G[T>C]G", 
-              "G[T>C]T", "T[T>C]A", "T[T>C]C", "T[T>C]G", "T[T>C]T", 
-              "A[T>G]A", "A[T>G]C", "A[T>G]G", "A[T>G]T", "C[T>G]A", 
-              "C[T>G]C", "C[T>G]G", "C[T>G]T", "G[T>G]A", "G[T>G]C", 
-              "G[T>G]G", "G[T>G]T", "T[T>G]A", "T[T>G]C", "T[T>G]G", 
-              "T[T>G]T")
-
-  signeR <- c("C>A:ACA", "C>A:ACC", "C>A:ACG", "C>A:ACT", "C>A:CCA", 
-              "C>A:CCC", "C>A:CCG", "C>A:CCT", "C>A:GCA", "C>A:GCC", 
-              "C>A:GCG", "C>A:GCT", "C>A:TCA", "C>A:TCC", "C>A:TCG", 
-              "C>A:TCT", "C>G:ACA", "C>G:ACC", "C>G:ACG", "C>G:ACT", 
-              "C>G:CCA", "C>G:CCC", "C>G:CCG", "C>G:CCT", "C>G:GCA", 
-              "C>G:GCC", "C>G:GCG", "C>G:GCT", "C>G:TCA", "C>G:TCC", 
-              "C>G:TCG", "C>G:TCT", "C>T:ACA", "C>T:ACC", "C>T:ACG", 
-              "C>T:ACT", "C>T:CCA", "C>T:CCC", "C>T:CCG", "C>T:CCT", 
-              "C>T:GCA", "C>T:GCC", "C>T:GCG", "C>T:GCT", "C>T:TCA", 
-              "C>T:TCC", "C>T:TCG", "C>T:TCT", "T>A:ATA", "T>A:ATC", 
-              "T>A:ATG", "T>A:ATT", "T>A:CTA", "T>A:CTC", "T>A:CTG", 
-              "T>A:CTT", "T>A:GTA", "T>A:GTC", "T>A:GTG", "T>A:GTT", 
-              "T>A:TTA", "T>A:TTC", "T>A:TTG", "T>A:TTT", "T>C:ATA", 
-              "T>C:ATC", "T>C:ATG", "T>C:ATT", "T>C:CTA", "T>C:CTC", 
-              "T>C:CTG", "T>C:CTT", "T>C:GTA", "T>C:GTC", "T>C:GTG", 
-              "T>C:GTT", "T>C:TTA", "T>C:TTC", "T>C:TTG", "T>C:TTT", 
-              "T>G:ATA", "T>G:ATC", "T>G:ATG", "T>G:ATT", "T>G:CTA", 
-              "T>G:CTC", "T>G:CTG", "T>G:CTT", "T>G:GTA", "T>G:GTC", 
-              "T>G:GTG", "T>G:GTT", "T>G:TTA", "T>G:TTC", "T>G:TTG", 
-              "T>G:TTT")
-  
-  # To handle L matrix
-  # define trinucleotide seq from 5' to 3'. They are the same order as the function trinucleotideFrequency()
-  nt = c("A","C","G","T")
+  # Enumerate trinucleotide opportunities in the order returned by
+  # Biostrings::trinucleotideFrequency(). A/G-centered contexts are folded into
+  # their C/T-centered reverse complements to match SBS96 convention.
+  nt = SATS_BASES
   tri_nt = paste(rep(nt,each=16,times=1),rep(nt,each=4,times=4),rep(nt,each=1,times=16), sep="")
   tri_nt_idx = setNames(1:64, tri_nt)
   
@@ -170,8 +117,8 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
   AGtoCT_idx = tri_nt_CT_idx[tri_nt_comp[c(A_idx,G_idx)]]
   
   
-  Seq_assay_GRanges <- GRanges(seqnames = paste0("chr",genomic_information$Chromosome),
-                               IRanges(start = genomic_information$Start_Position-1, 
+  Seq_assay_GRanges <- GRanges(seqnames = sats_seqnames(genomic_information$Chromosome),
+                               IRanges(start = genomic_information$Start_Position-1,
                                end=genomic_information$End_Position+1), strand = "+")
   
   Seq_assay_n = length(Seq_assay_GRanges)
@@ -203,12 +150,12 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
   assay_CT_32$assaySize = rowSums(assay_CT_32[,-1])
   
   if(Types == "COSMIC"){
-    assay_CT_32_2 <- data.frame(t(assay_CT_32[, paste0(substr(COSMIC, 1, 1), substr(COSMIC, 3, 3), 
-                                  substr(COSMIC, 7, 7)), drop = FALSE]))/10^6
-    rownames(assay_CT_32_2) <- COSMIC
+    assay_CT_32_2 <- data.frame(t(assay_CT_32[, paste0(substr(SATS_SBS_ORDER_COSMIC, 1, 1), substr(SATS_SBS_ORDER_COSMIC, 3, 3), 
+                                  substr(SATS_SBS_ORDER_COSMIC, 7, 7)), drop = FALSE]))/SATS_BASES_PER_MB
+    rownames(assay_CT_32_2) <- SATS_SBS_ORDER_COSMIC
   } else if(Types == "signeR"){
-    assay_CT_32_2 <- data.frame(t(assay_CT_32[, substr(signeR, 5, 7), drop = FALSE]))/10^6
-    rownames(assay_CT_32_2) <- signeR  
+    assay_CT_32_2 <- data.frame(t(assay_CT_32[, substr(SATS_SBS_ORDER_SIGNER, 5, 7), drop = FALSE]))/SATS_BASES_PER_MB
+    rownames(assay_CT_32_2) <- SATS_SBS_ORDER_SIGNER  
   } 
   
   colnames(assay_CT_32_2) <- assay_CT_32$SEQ_ASSAY_ID
@@ -225,9 +172,12 @@ GeneratePanelSize_SBS <- function(genomic_information, Types = c("COSMIC", "sign
 ## PATIENT_ID: patient ID corresponds to SEQ_ASSAY_ID
 ## SEQ_ASSAY_ID: SEQ_ASSAY_ID contained in Panel_context
 L_matrix_generation <- function(Panel_context, Patient_Info){
-  
+
   idx <- Patient_Info$SEQ_ASSAY_ID %in% colnames(Panel_context)
-  L <- Panel_context[, Patient_Info$SEQ_ASSAY_ID[idx]]
+  if (any(!idx)) {
+    warning(sum(!idx), " sample(s) have SEQ_ASSAY_ID values not present in Panel_context and were removed")
+  }
+  L <- Panel_context[, Patient_Info$SEQ_ASSAY_ID[idx], drop = FALSE]
   colnames(L) <- Patient_Info$PATIENT_ID[idx]
   #if(sum(idx) != nrow(Patient_Info)){
   #  warning(sprintf("There are patients for whom the panel context has not been provided in Patient_Info. 
@@ -238,10 +188,21 @@ L_matrix_generation <- function(Panel_context, Patient_Info){
   return(L)
 }
 
-GenerateLMatrix <- function(Panel_context, Patient_Info) {
+GenerateLMatrix <- function(Panel_context, Patient_Info, Class = c("SBS", "DBS"),
+                            SBS_order = c("COSMIC", "signeR"), ref.genome = "hg19") {
 
-  check_Panel_context(Panel_context)
   check_Patient_Info(Patient_Info)
+  Patient_Info <- standardize_Patient_Info(Patient_Info)
+
+  if (is_genomic_info_input(Panel_context)) {
+    Class <- match.arg(Class)
+    SBS_order <- match.arg(SBS_order)
+    Panel_context <- GeneratePanelSize(genomic_information = Panel_context,
+                                       Class = Class, SBS_order = SBS_order,
+                                       ref.genome = ref.genome)
+  } else {
+    check_Panel_context(Panel_context)
+  }
 
   ret <- L_matrix_generation(Panel_context, Patient_Info)
   ret

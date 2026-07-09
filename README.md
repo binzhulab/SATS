@@ -83,7 +83,7 @@ Alternatively, download `SATS_1.0.10.tar.gz` and install the source archive:
 R CMD INSTALL SATS_1.0.10.tar.gz
 ```
 
-SATS was formerly available from the [Comprehensive R Archive Network (CRAN)](https://CRAN.R-project.org/package=SATS). CRAN currently lists the package as archived, so the GitHub source installation above is the recommended route for the current version.
+SATS v1.0.10 is also available from the [Comprehensive R Archive Network (CRAN)](https://cran.r-project.org/package=SATS), while the GitHub source installation above remains the recommended route for installing the repository source version.
 
 ---
 

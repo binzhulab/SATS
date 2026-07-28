@@ -216,6 +216,7 @@ The row order of the mutation catalogue matrix `V`, panel-context matrix `L` and
 
 If you use SATS or the targeted-sequencing mutational-signature catalogue, please cite:
 
-Lee et al., "A real-world pan-cancer catalogue of mutational signatures from 111,711 tumors" (submitted).
+Lee et al., "Pan-cancer mutational signature analysis of 111,711 targeted sequenced tumors using SATS" (submitted). 
+https://pubmed.ncbi.nlm.nih.gov/37425683/
 
 Software citation metadata are also available in [`CITATION.cff`](CITATION.cff).
